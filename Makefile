@@ -1,7 +1,7 @@
-# include .env
+include .env
 export $(shell sed 's/=.*//' .env)
 
-MIGRATION_DIR = ./internal/infrastructure/database/migrations/
+MIGRATION_DIR = ./migrations
 DB_URL = $(DATABASE_URL)
 
 # Create a new migration
