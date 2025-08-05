@@ -7,11 +7,14 @@ import (
 
 	middleswares "github.com/nahtann/controlriver.com/api/v1/middlewares"
 	routes_v1 "github.com/nahtann/controlriver.com/api/v1/routes"
+	"github.com/nahtann/controlriver.com/internal/helpers/migrations"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 func main() {
+	migrations.Up()
+
 	logger := NewLogger()
 	defer logger.Sync()
 

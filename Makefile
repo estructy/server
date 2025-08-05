@@ -1,8 +1,6 @@
-include .env
 export $(shell sed 's/=.*//' .env)
 
 MIGRATION_DIR = ./migrations
-DB_URL = $(DATABASE_URL)
 
 # Create a new migration
 .PHONY: create-migration
@@ -12,27 +10,6 @@ create-migration:
 		exit 1; \
 	fi
 	migrate create -dir $(MIGRATION_DIR) -ext sql $(name)
-
-# Apply migrations
-.PHONY: migrate-up
-migrate-up:
-	migrate -path $(MIGRATION_DIR) -database "$(DB_URL)" up
-
-# Rollback last migration
-.PHONY: migrate-down
-migrate-down:
-	migrate -database "$(DB_URL)" -path $(MIGRATION_DIR) down 1
-
-# Reset database (dangerous)
-.PHONY: migrate-reset
-migrate-reset:
-	migrate -database "$(DB_URL)" -path $(MIGRATION_DIR) down
-	migrate -database "$(DB_URL)" -path $(MIGRATION_DIR) up
-
-# Show migration status
-.PHONY: migrate-status
-migrate-status:
-	migrate -database "$(DB_URL)" -path $(MIGRATION_DIR) version
 
 # Compile sqlc queries
 .PHONY: sqlc

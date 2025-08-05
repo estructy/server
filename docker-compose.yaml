@@ -22,10 +22,12 @@ services:
     container_name: controlriver-central-server
     build: .
     depends_on:
-      - controlriver-database
+      controlriver-database:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
       - TZ=Brazil/East
+      - DATABASE_URL=postgres://root:root@controlriver-database:5432/controlriver?sslmode=disable
     volumes:
       - ./:/app
