@@ -1,6 +1,11 @@
-package usershanlder
+// Package usershandler provides handlers for user-related operations.
+package usershandler
 
-import "github.com/nahtann/controlriver.com/internal/infra/database/repository"
+import (
+	"net/http"
+
+	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+)
 
 type UsersHandler struct {
 	repository *repository.Queries
@@ -12,4 +17,4 @@ func NewUsersHandler(repository *repository.Queries) *UsersHandler {
 	}
 }
 
-func (h *UsersHandler) CreateUser() {}
+func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {}

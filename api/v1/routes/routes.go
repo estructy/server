@@ -1,9 +1,11 @@
-package routes_v1
+// Package routesv1 provides the routing for version 1 of the API.
+package routesv1
 
 import (
 	"net/http"
 
 	health_handler "github.com/nahtann/controlriver.com/api/v1/handlers/health"
+	usershandler "github.com/nahtann/controlriver.com/api/v1/handlers/users"
 	middleswares "github.com/nahtann/controlriver.com/api/v1/middlewares"
 	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
 )
@@ -13,13 +15,16 @@ func health(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestra
 }
 
 func users(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {
-	router.HandleFunc("/users", middlewares.Chain(users_handler.GetUsers, middlewares.Logger))
+	usersHandler := usershandler.NewUsersHandler(repository)
+
+	router.HandleFunc("/users", middlewares.Chain(usersHandler.CreateUser, middlewares.Logger))
 }
 
 func NewRouterV1(middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	health(mux, middlewares)
+	users(mux, middlewares, repository)
 
 	return mux
 }
