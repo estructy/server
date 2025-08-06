@@ -1,19 +1,31 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	middleswares "github.com/nahtann/controlriver.com/api/v1/middlewares"
 	routes_v1 "github.com/nahtann/controlriver.com/api/v1/routes"
 	"github.com/nahtann/controlriver.com/internal/helpers/migrations"
+	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 func main() {
 	migrations.Up()
+
+	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalf("Unable to connect to database: %v\n", err)
+	}
+	defer dbpool.Close()
+
+	repository := repository.New(dbpool)
 
 	logger := NewLogger()
 	defer logger.Sync()

@@ -27,7 +27,7 @@ func (l *migrationsLogger) Verbose() bool {
 func Up() {
 	logger := newMigrateLogger()
 	m, err := migrate.New(
-		"file://migrations",
+		"file://internal/infra/database/migrations",
 		os.Getenv("DATABASE_URL"),
 	)
 	if err != nil {
