@@ -1,0 +1,42 @@
+// Package createuser implements the use case for creating a user.
+package createuser
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/google/uuid"
+	userrepository "github.com/nahtann/controlriver.com/internal/domain/user/repository"
+	createuserrequest "github.com/nahtann/controlriver.com/internal/domain/user/use_cases/create_user/request"
+	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+)
+
+var ErrFailedToCreateUser = fmt.Errorf("failed to create user")
+
+type CreateUserUseCase struct {
+	UserRepository userrepository.UserRepository
+}
+
+func NewCreateUserUseCase(userRepository userrepository.UserRepository) *CreateUserUseCase {
+	return &CreateUserUseCase{
+		UserRepository: userRepository,
+	}
+}
+
+func (uc *CreateUserUseCase) Execute(request createuserrequest.CreateUserRequest) error {
+	userID, err := uuid.NewV7()
+	if err != nil {
+		return fmt.Errorf("%w: %s", ErrFailedToCreateUser, err.Error())
+	}
+
+	_, err = uc.UserRepository.CreateUser(context.Background(), repository.CreateUserParams{
+		UserID: userID,
+		Name:   request.Name,
+		Email:  request.Email,
+	})
+	if err != nil {
+		return fmt.Errorf("%w: %s", ErrFailedToCreateUser, err.Error())
+	}
+
+	return nil
+}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -17,22 +16,25 @@ import (
 )
 
 func main() {
+	// --- Database setup ---
 	migrations.Up()
-
 	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
 	defer dbpool.Close()
-
 	repository := repository.New(dbpool)
+	// ------
 
+	// --- Logger setup ---
 	logger := NewLogger()
 	defer logger.Sync()
+	// --------
 
+	// --- Router setup ---
 	middlewareOrchestrator := middleswares.NewMiddlewareOrchestration(logger)
-
 	routerV1 := routesv1.NewRouterV1(middlewareOrchestrator, repository)
+	// ------
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", routerV1))
@@ -42,13 +44,13 @@ func main() {
 		Handler: mux,
 	}
 
-	fmt.Println("Starting server on ", server.Addr)
+	log.Printf("Starting server on %s\n", server.Addr)
 	if err := server.ListenAndServe(); err != nil {
-		fmt.Printf("Error starting server: %v\n", err)
+		log.Printf("Error starting server: %v\n", err)
 		return
 	}
 
-	fmt.Println("Server stopped")
+	log.Printf("Server stopped\n")
 }
 
 func NewLogger() *zap.Logger {

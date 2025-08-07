@@ -1,4 +1,5 @@
-package json_helper
+// Package jsonhelper provides utility functions for handling JSON responses and errors in HTTP requests.
+package jsonhelper
 
 import (
 	"encoding/json"
@@ -8,11 +9,11 @@ import (
 )
 
 type ErrorMappings struct {
-	Type    int
+	Code    int
 	Message string
 }
 
-func HttpResponse(w http.ResponseWriter, code int, payload interface{}) {
+func HTTPResponse(w http.ResponseWriter, code int, payload any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
@@ -23,7 +24,7 @@ func HttpResponse(w http.ResponseWriter, code int, payload interface{}) {
 	}
 }
 
-func HttpError(w http.ResponseWriter, code int, message string) {
+func HTTPError(w http.ResponseWriter, code int, message string) {
 	var errType string
 
 	switch code {
@@ -41,20 +42,20 @@ func HttpError(w http.ResponseWriter, code int, message string) {
 
 	payload := map[string]string{"error": errType, "message": message}
 
-	HttpResponse(w, code, payload)
+	HTTPResponse(w, code, payload)
 }
 
-func handleError(w http.ResponseWriter, err error, errorMappings map[error]ErrorMappings,
+func HandleError(w http.ResponseWriter, err error, errorMappings map[error]ErrorMappings,
 ) {
 	log.Println(err)
 
 	for knownErr, mapping := range errorMappings {
 		if errors.Is(err, knownErr) {
-			HttpResponse(w, mapping.Type, mapping.Message)
+			HTTPError(w, mapping.Code, mapping.Message)
 			return
 		}
 	}
 
 	// Default case
-	HttpResponse(w, http.StatusInternalServerError, "An unexpected error occurred")
+	HTTPError(w, http.StatusInternalServerError, "An unexpected error occurred")
 }

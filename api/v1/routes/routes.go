@@ -4,14 +4,14 @@ package routesv1
 import (
 	"net/http"
 
-	health_handler "github.com/nahtann/controlriver.com/api/v1/handlers/health"
+	healthhandler "github.com/nahtann/controlriver.com/api/v1/handlers/health"
 	usershandler "github.com/nahtann/controlriver.com/api/v1/handlers/users"
 	middleswares "github.com/nahtann/controlriver.com/api/v1/middlewares"
 	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
 )
 
 func health(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator) {
-	router.HandleFunc("GET /health", middlewares.Chain(health_handler.GetHealth, middlewares.Logger))
+	router.HandleFunc("GET /health", middlewares.Chain(healthhandler.GetHealth, middlewares.Logger))
 }
 
 func users(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {

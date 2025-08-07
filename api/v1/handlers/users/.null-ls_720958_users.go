@@ -42,8 +42,6 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		errorMappings := map[error]jsonhelper.ErrorMappings{
 			createuser.ErrFailedToCreateUser: {Code: http.StatusInternalServerError, Message: "Failed to create user"},
 		}
-
-		jsonhelper.HandleError(w, err, errorMappings)
 	}
 
 	w.WriteHeader(http.StatusCreated)
