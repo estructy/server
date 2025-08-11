@@ -14,8 +14,8 @@ import (
 type Account struct {
 	AccountID       uuid.UUID          `json:"account_id"`
 	Name            string             `json:"name"`
-	Description     pgtype.Text        `json:"description"`
-	CurrencyCode    pgtype.Text        `json:"currency_code"`
+	Description     *string            `json:"description"`
+	CurrencyCode    *string            `json:"currency_code"`
 	CreatedByUserID uuid.UUID          `json:"created_by_user_id"`
 	CreatedAt       time.Time          `json:"created_at"`
 	UpdatedAt       time.Time          `json:"updated_at"`
@@ -31,9 +31,9 @@ type AccountMember struct {
 }
 
 type User struct {
-	UserID       uuid.UUID   `json:"user_id"`
-	Name         string      `json:"name"`
-	Email        string      `json:"email"`
-	PasswordHash pgtype.Text `json:"password_hash"`
-	CreatedAt    time.Time   `json:"created_at"`
+	UserID       uuid.UUID `json:"user_id"`
+	Name         string    `json:"name"`
+	Email        string    `json:"email"`
+	PasswordHash *string   `json:"password_hash"`
+	CreatedAt    time.Time `json:"created_at"`
 }

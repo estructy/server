@@ -45,6 +45,7 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		}
 
 		jsonhelper.HandleError(w, err, errorMappings)
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)

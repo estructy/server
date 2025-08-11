@@ -9,7 +9,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createAccount = `-- name: CreateAccount :exec
@@ -18,11 +17,11 @@ VALUES ($1, $2, $3, $4, $5)
 `
 
 type CreateAccountParams struct {
-	AccountID       uuid.UUID   `json:"account_id"`
-	Name            string      `json:"name"`
-	Description     pgtype.Text `json:"description"`
-	CurrencyCode    pgtype.Text `json:"currency_code"`
-	CreatedByUserID uuid.UUID   `json:"created_by_user_id"`
+	AccountID       uuid.UUID `json:"account_id"`
+	Name            string    `json:"name"`
+	Description     *string   `json:"description"`
+	CurrencyCode    *string   `json:"currency_code"`
+	CreatedByUserID uuid.UUID `json:"created_by_user_id"`
 }
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) error {

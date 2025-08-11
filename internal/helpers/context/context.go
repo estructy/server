@@ -1,7 +1,11 @@
 // Package contexthelper provides utility functions to manage user IDs in a context.
 package contexthelper
 
-import "context"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 type UserID string
 
@@ -11,10 +15,16 @@ func WithUserID(ctx context.Context, userID UserID) context.Context {
 }
 
 // UserIDFromContext retrieves the user ID from the context.
-func UserIDFromContext(ctx context.Context) (UserID, bool) {
-	userID, ok := ctx.Value(UserID("userID")).(UserID)
+func UserIDFromContext(ctx context.Context) (uuid.UUID, bool) {
+	rawUserID, ok := ctx.Value(UserID("userID")).(UserID)
 	if !ok {
-		return "", false
+		return uuid.UUID{}, false
 	}
+
+	userID, err := uuid.Parse(string(rawUserID))
+	if err != nil {
+		return uuid.UUID{}, false
+	}
+
 	return userID, true
 }
