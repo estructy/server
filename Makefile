@@ -1,6 +1,4 @@
-export $(shell sed 's/=.*//' .env)
-
-MIGRATION_DIR = ./migrations
+MIGRATION_DIR = ./internal/infra/database/migrations/
 
 # Create a new migration
 .PHONY: create-migration

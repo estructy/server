@@ -4,6 +4,7 @@ package routesv1
 import (
 	"net/http"
 
+	accountshandler "github.com/nahtann/controlriver.com/api/v1/handlers/accounts"
 	healthhandler "github.com/nahtann/controlriver.com/api/v1/handlers/health"
 	usershandler "github.com/nahtann/controlriver.com/api/v1/handlers/users"
 	middleswares "github.com/nahtann/controlriver.com/api/v1/middlewares"
@@ -17,7 +18,13 @@ func health(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestra
 func users(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {
 	usersHandler := usershandler.NewUsersHandler(repository)
 
-	router.HandleFunc("/users", middlewares.Chain(usersHandler.CreateUser, middlewares.Logger))
+	router.HandleFunc("POST /users", middlewares.Chain(usersHandler.CreateUser, middlewares.Logger))
+}
+
+func accounts(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {
+	accountsHandler := accountshandler.NewAccountsHandler(repository)
+
+	router.HandleFunc("POST /accounts", middlewares.Chain(accountsHandler.CreateAccount, middlewares.Logger, middlewares.Auth))
 }
 
 func NewRouterV1(middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) *http.ServeMux {
@@ -25,6 +32,7 @@ func NewRouterV1(middlewares *middleswares.MiddlewareOrchestrator, repository *r
 
 	health(mux, middlewares)
 	users(mux, middlewares, repository)
+	accounts(mux, middlewares, repository)
 
 	return mux
 }

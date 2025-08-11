@@ -11,6 +11,25 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Account struct {
+	AccountID       uuid.UUID          `json:"account_id"`
+	Name            string             `json:"name"`
+	Description     pgtype.Text        `json:"description"`
+	CurrencyCode    pgtype.Text        `json:"currency_code"`
+	CreatedByUserID uuid.UUID          `json:"created_by_user_id"`
+	CreatedAt       time.Time          `json:"created_at"`
+	UpdatedAt       time.Time          `json:"updated_at"`
+	DeletedAt       pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type AccountMember struct {
+	AccountID uuid.UUID          `json:"account_id"`
+	UserID    uuid.UUID          `json:"user_id"`
+	Role      string             `json:"role"`
+	JoinedAt  time.Time          `json:"joined_at"`
+	RemovedAt pgtype.Timestamptz `json:"removed_at"`
+}
+
 type User struct {
 	UserID       uuid.UUID   `json:"user_id"`
 	Name         string      `json:"name"`
