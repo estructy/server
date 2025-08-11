@@ -41,6 +41,7 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err := userUseCase.Execute(requestBody); err != nil {
 		errorMappings := map[error]jsonhelper.ErrorMappings{
 			createuser.ErrFailedToCreateUser: {Code: http.StatusInternalServerError, Message: "Failed to create user"},
+			createuser.ErrUserAlreadyExists:  {Code: http.StatusConflict, Message: "User already exists"},
 		}
 
 		jsonhelper.HandleError(w, err, errorMappings)

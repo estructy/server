@@ -11,7 +11,10 @@ import (
 	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
 )
 
-var ErrFailedToCreateUser = fmt.Errorf("failed to create user")
+var (
+	ErrUserAlreadyExists  = fmt.Errorf("user already exists")
+	ErrFailedToCreateUser = fmt.Errorf("failed to create user")
+)
 
 type CreateUserUseCase struct {
 	UserRepository userrepository.UserRepository
@@ -24,6 +27,14 @@ func NewCreateUserUseCase(userRepository userrepository.UserRepository) *CreateU
 }
 
 func (uc *CreateUserUseCase) Execute(request createuserrequest.CreateUserRequest) error {
+	userExists, err := uc.UserRepository.UserExistsByEmail(context.Background(), request.Email)
+	if err != nil {
+		return fmt.Errorf("%w: %s", ErrFailedToCreateUser, err.Error())
+	}
+	if userExists {
+		return fmt.Errorf("%w: %s", ErrUserAlreadyExists, request.Email)
+	}
+
 	userID, err := uuid.NewV7()
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrFailedToCreateUser, err.Error())

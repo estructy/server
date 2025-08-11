@@ -9,4 +9,5 @@ import (
 
 type UserRepository interface {
 	CreateUser(context.Context, repository.CreateUserParams) (repository.CreateUserRow, error)
+	UserExistsByEmail(ctx context.Context, email string) (bool, error)
 }

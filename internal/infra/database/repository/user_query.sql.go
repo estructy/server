@@ -33,3 +33,16 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 	err := row.Scan(&i.UserID, &i.Name, &i.Email)
 	return i, err
 }
+
+const userExistsByEmail = `-- name: UserExistsByEmail :one
+SELECT EXISTS (
+		SELECT 1 FROM users WHERE email = $1
+) AS exists
+`
+
+func (q *Queries) UserExistsByEmail(ctx context.Context, email string) (bool, error) {
+	row := q.db.QueryRow(ctx, userExistsByEmail, email)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
