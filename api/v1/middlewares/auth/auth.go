@@ -13,9 +13,9 @@ func NewAuthMiddleware() *AuthMiddleware {
 	return &AuthMiddleware{}
 }
 
-// @todo: replace with real authentication logic
 func (m *AuthMiddleware) Handle(next http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// @todo: replace with real authentication logic
 		// Extract user ID from headers
 		userID := r.Header.Get("X-User-ID")
 		if userID == "" {

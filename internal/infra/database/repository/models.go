@@ -30,6 +30,15 @@ type AccountMember struct {
 	RemovedAt pgtype.Timestamptz `json:"removed_at"`
 }
 
+type Category struct {
+	CategoryID uuid.UUID          `json:"category_id"`
+	AccountID  uuid.UUID          `json:"account_id"`
+	Name       string             `json:"name"`
+	Type       string             `json:"type"`
+	Color      *string            `json:"color"`
+	DeletedAt  pgtype.Timestamptz `json:"deleted_at"`
+}
+
 type User struct {
 	UserID       uuid.UUID `json:"user_id"`
 	Name         string    `json:"name"`
