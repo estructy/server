@@ -33,7 +33,7 @@ func main() {
 
 	// --- Router setup ---
 	middlewareOrchestrator := middleswares.NewMiddlewareOrchestration(logger)
-	routerV1 := routesv1.NewRouterV1(middlewareOrchestrator, repository)
+	routerV1 := routesv1.NewRouterV1(middlewareOrchestrator, dbpool, repository)
 	// ------
 
 	mux := http.NewServeMux()

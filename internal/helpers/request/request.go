@@ -14,6 +14,7 @@ func ValidateRequest(s any) string {
 	if err != nil {
 		validationErrors := err.(validator.ValidationErrors)
 
+		// @todo: improve error messages response
 		errorMessages := []string{}
 		for _, e := range validationErrors {
 			errorMessages = append(errorMessages, e.Error())

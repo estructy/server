@@ -9,3 +9,12 @@ var (
 	JPY = "JPY" // Japanese Yen
 	USD = "USD" // United States Dollar
 )
+
+func IsValid(code string) bool {
+	switch code {
+	case BRL, EUR, GBP, JPY, USD:
+		return true
+	default:
+		return false
+	}
+}

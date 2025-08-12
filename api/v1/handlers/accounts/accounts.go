@@ -5,25 +5,27 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	createaccount "github.com/nahtann/controlriver.com/internal/domain/accounts/use_cases/create_account"
 	createaccountrequest "github.com/nahtann/controlriver.com/internal/domain/accounts/use_cases/create_account/request"
 	contexthelper "github.com/nahtann/controlriver.com/internal/helpers/context"
 	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
-	requesthelper "github.com/nahtann/controlriver.com/internal/helpers/request"
 	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
 )
 
 type AccountsHandler struct {
+	db         *pgxpool.Pool
 	repository *repository.Queries
 }
 
-func NewAccountsHandler(repository *repository.Queries) *AccountsHandler {
+func NewAccountsHandler(db *pgxpool.Pool, repository *repository.Queries) *AccountsHandler {
 	return &AccountsHandler{
+		db:         db,
 		repository: repository,
 	}
 }
 
-func (accounts *AccountsHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
+func (h *AccountsHandler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	userID, ok := contexthelper.UserIDFromContext(r.Context())
 	if !ok {
 		http.Error(w, "User ID not found in context", http.StatusBadRequest)
@@ -36,23 +38,28 @@ func (accounts *AccountsHandler) CreateAccount(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	errorMessages := requesthelper.ValidateRequest(requestBody)
-	if errorMessages != "" {
-		jsonhelper.HTTPError(w, http.StatusBadRequest, errorMessages)
+	errorMessages := createaccountrequest.Validate(&requestBody)
+	if len(errorMessages) > 0 {
+		jsonhelper.HTTPResponse(w, http.StatusBadRequest, map[string]any{
+			"errors": errorMessages,
+		})
 		return
 	}
 
-	createAccountUseCase := createaccount.NewCreateAccountUseCase(accounts.repository)
-	if err := createAccountUseCase.Execute(userID, requestBody); err != nil {
+	// Repository with transaction
+	rtx := repository.New(h.db)
+
+	createAccountUseCase := createaccount.NewCreateAccountUseCase(h.db, rtx)
+	response, err := createAccountUseCase.Execute(userID, requestBody)
+	if err != nil {
 		errorMappings := map[error]jsonhelper.ErrorMappings{
-			createaccount.ErrFailedToCreateAccount: {Code: http.StatusInternalServerError, Message: "Failed to create account"},
+			createaccount.ErrFailedToCreateAccount:    {Code: http.StatusInternalServerError, Message: "Failed to create account"},
+			createaccount.ErrFailedToAddAccountMember: {Code: http.StatusInternalServerError, Message: "Failed to add account member"},
 		}
 
 		jsonhelper.HandleError(w, err, errorMappings)
 		return
 	}
 
-	jsonhelper.HTTPResponse(w, http.StatusCreated, map[string]string{
-		"message": "Account created successfully",
-	})
+	jsonhelper.HTTPResponse(w, http.StatusCreated, response)
 }
