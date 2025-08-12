@@ -20,13 +20,42 @@ model HealthResponse {
   timestamp: string;
 }
 
+@added(Versions.v1)
+model CreateAccountRequest {
+  name: string;
+  description?: string;
+  currency_code: string;
+}
+
+@added(Versions.v1)
+model CreateAccountResponse {
+	account_id: string;
+}
+
 @route("/health")
 @tag("Health")
 namespace Health {
-	@added(Versions.v1)
+  @added(Versions.v1)
   @get
   op getHealth(): {
     @statusCode statusCode: 200;
     @body health: HealthResponse;
   };
+}
+
+@route("/accounts")
+@tag("Accounts")
+namespace Accounts {
+  @added(Versions.v1)
+  @post
+	op createAccount(@header("X-User-ID") userId: string, @body request: CreateAccountRequest): {
+    @statusCode statusCode: 201;
+    @body response: CreateAccountResponse;
+  } | {
+		@statusCode statusCode: 400;
+		@body error: string[];
+	} | {
+		@statusCode statusCode: 500;
+		@body error: string[];
+	};
 }
