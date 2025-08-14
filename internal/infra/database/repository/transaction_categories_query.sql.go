@@ -7,11 +7,13 @@ package repository
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
-const createTransactionCategory = `-- name: CreateTransactionCategory :exec
+const createTransactionCategory = `-- name: CreateTransactionCategory :one
 INSERT INTO transaction_categories (name, type) 
-VALUES ($1, $2)
+VALUES ($1, $2) RETURNING transaction_category_id
 `
 
 type CreateTransactionCategoryParams struct {
@@ -19,9 +21,11 @@ type CreateTransactionCategoryParams struct {
 	Type string `json:"type"`
 }
 
-func (q *Queries) CreateTransactionCategory(ctx context.Context, arg CreateTransactionCategoryParams) error {
-	_, err := q.db.Exec(ctx, createTransactionCategory, arg.Name, arg.Type)
-	return err
+func (q *Queries) CreateTransactionCategory(ctx context.Context, arg CreateTransactionCategoryParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, createTransactionCategory, arg.Name, arg.Type)
+	var transaction_category_id uuid.UUID
+	err := row.Scan(&transaction_category_id)
+	return transaction_category_id, err
 }
 
 const findTransactionCategoriesByNames = `-- name: FindTransactionCategoriesByNames :many

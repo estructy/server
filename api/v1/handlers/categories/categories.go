@@ -2,26 +2,56 @@
 package categorieshandler
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+	createcategory "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category"
+	createcategoryrequest "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category/request"
 	contexthelper "github.com/nahtann/controlriver.com/internal/helpers/context"
+	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
+	requesthelper "github.com/nahtann/controlriver.com/internal/helpers/request"
+	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
 )
 
-type CategoriesHandler struct{}
-
-func NewCategoriesHandler() *CategoriesHandler {
-	return &CategoriesHandler{}
+type CategoriesHandler struct {
+	db         *pgxpool.Pool
+	repository *repository.Queries
 }
 
-func (uc *CategoriesHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
+func NewCategoriesHandler(db *pgxpool.Pool, repository *repository.Queries) *CategoriesHandler {
+	return &CategoriesHandler{
+		db:         db,
+		repository: repository,
+	}
+}
+
+func (h *CategoriesHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	accountID, ok := contexthelper.AccountIDFromContext(r.Context())
 	if !ok {
 		http.Error(w, "Account ID not found in context", http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Println(accountID)
+	var request createcategoryrequest.Request
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, fmt.Sprintf("Invalid request body: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	errorMessages := requesthelper.ValidateRequest(request)
+	if errorMessages != "" {
+		jsonhelper.HTTPError(w, http.StatusBadRequest, errorMessages)
+		return
+	}
+
+	createCategoryUseCase := createcategory.NewCreateCategoryUseCase(h.db, h.repository)
+	err := createCategoryUseCase.Execute(accountID, &request)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to create category: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Category created successfully"))

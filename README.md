@@ -38,4 +38,4 @@ The server will be available at `http://localhost:8080`.
 ### TODO 
 
 - [ ] User should be able to create a new category
-    - [ ] Category should be associated with the user account
+    - [x] Category should be associated with the user account

@@ -29,8 +29,8 @@ func accounts(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchest
 	router.HandleFunc("POST /accounts", middlewares.Chain(accountsHandler.CreateAccount, middlewares.Logger, middlewares.Auth))
 }
 
-func categories(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator) {
-	categoriesHandler := categorieshandler.NewCategoriesHandler()
+func categories(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, db *pgxpool.Pool, repository *repository.Queries) {
+	categoriesHandler := categorieshandler.NewCategoriesHandler(db, repository)
 
 	router.HandleFunc("POST /categories", middlewares.Chain(categoriesHandler.CreateCategory, middlewares.Logger, middlewares.Account))
 }
@@ -41,7 +41,7 @@ func NewRouterV1(middlewares *middleswares.MiddlewareOrchestrator, db *pgxpool.P
 	health(mux, middlewares)
 	users(mux, middlewares, repository)
 	accounts(mux, middlewares, db, repository)
-	categories(mux, middlewares)
+	categories(mux, middlewares, db, repository)
 
 	return mux
 }

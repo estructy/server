@@ -6,6 +6,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 )
 
@@ -14,4 +16,15 @@ type AddAccountTransactionCategoriesParams struct {
 	AccountID             uuid.UUID `json:"account_id"`
 	TransactionCategoryID uuid.UUID `json:"transaction_category_id"`
 	Color                 *string   `json:"color"`
+}
+
+const findLastAccountTransactionCategoryCode = `-- name: FindLastAccountTransactionCategoryCode :one
+SELECT category_code FROM account_transaction_categories WHERE account_id = $1 ORDER BY category_code DESC LIMIT 1
+`
+
+func (q *Queries) FindLastAccountTransactionCategoryCode(ctx context.Context, accountID uuid.UUID) (*string, error) {
+	row := q.db.QueryRow(ctx, findLastAccountTransactionCategoryCode, accountID)
+	var category_code *string
+	err := row.Scan(&category_code)
+	return category_code, err
 }
