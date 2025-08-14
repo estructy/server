@@ -17,6 +17,27 @@ import (
 var (
 	ErrFailedToCreateAccount    = fmt.Errorf("failed to create account")
 	ErrFailedToAddAccountMember = fmt.Errorf("failed to add account member")
+
+	defaultTransactionCategories = []string{
+		"alimentação",
+		"transporte",
+		"entreterimento",
+		"educação",
+		"saúde",
+		"moradia",
+		"investimentos",
+		"salário",
+	}
+	colors = []string{
+		"#FF5733", // Red
+		"#33FF57", // Green
+		"#3357FF", // Blue
+		"#F1C40F", // Yellow
+		"#9B59B6", // Purple
+		"#E67E22", // Orange
+		"#1ABC9C", // Teal
+		"#34495E", // Dark Blue
+	}
 )
 
 type CreateAccountUseCase struct {
@@ -63,6 +84,30 @@ func (uc *CreateAccountUseCase) Execute(userID uuid.UUID, request createaccountr
 		Role:      accountroles.Owner,
 	}); err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrFailedToAddAccountMember, err.Error())
+	}
+
+	// @todo: Implmement cache for transaction categories.
+	transactionCategories, err := qtx.FindTransactionCategoriesByNames(ctx, defaultTransactionCategories)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrFailedToCreateAccount, err.Error())
+	}
+
+	accountTransactionCategories := []repository.AddAccountTransactionCategoriesParams{}
+	for index, category := range transactionCategories {
+		categoryCode := fmt.Sprintf("TC-%02d", index+1)
+		color := colors[index%len(colors)]
+
+		accountTransactionCategories = append(accountTransactionCategories, repository.AddAccountTransactionCategoriesParams{
+			CategoryCode:          &categoryCode,
+			AccountID:             accountID,
+			TransactionCategoryID: category.TransactionCategoryID,
+			Color:                 &color,
+		})
+	}
+
+	_, err = qtx.AddAccountTransactionCategories(ctx, accountTransactionCategories)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrFailedToCreateAccount, err.Error())
 	}
 
 	if err := tx.Commit(ctx); err != nil {

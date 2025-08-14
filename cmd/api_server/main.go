@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	middleswares "github.com/nahtann/controlriver.com/api/v1/middlewares"
 	routesv1 "github.com/nahtann/controlriver.com/api/v1/routes"
@@ -15,21 +16,49 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// @todo: refactor this
+type myQueryTracer struct {
+	log *zap.Logger
+}
+
+func (tracer *myQueryTracer) TraceQueryStart(
+	ctx context.Context,
+	_ *pgx.Conn,
+	data pgx.TraceQueryStartData,
+) context.Context {
+	tracer.log.Info("Executing command",
+		zap.String("sql", data.SQL),
+		zap.Any("args", data.Args),
+	)
+
+	return ctx
+}
+
+func (tracer *myQueryTracer) TraceQueryEnd(ctx context.Context, conn *pgx.Conn, data pgx.TraceQueryEndData) {
+}
+
 func main() {
+	// --- Logger setup ---
+	logger := NewLogger()
+	defer logger.Sync()
+	// --------
+
 	// --- Database setup ---
 	migrations.Up()
-	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	config, err := pgxpool.ParseConfig(os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalf("Unable to parse DATABASE_URL: %v\n", err)
+	}
+	config.ConnConfig.Tracer = &myQueryTracer{
+		log: logger.WithOptions(zap.AddCallerSkip(1)),
+	}
+	dbpool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
 	defer dbpool.Close()
 	repository := repository.New(dbpool)
 	// ------
-
-	// --- Logger setup ---
-	logger := NewLogger()
-	defer logger.Sync()
-	// --------
 
 	// --- Router setup ---
 	middlewareOrchestrator := middleswares.NewMiddlewareOrchestration(logger)
