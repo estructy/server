@@ -13,7 +13,9 @@ import (
 
 const createTransactionCategory = `-- name: CreateTransactionCategory :one
 INSERT INTO transaction_categories (name, type) 
-VALUES ($1, $2) RETURNING transaction_category_id
+VALUES ($1, $2) 
+ON CONFLICT (name, type) DO NOTHING 
+RETURNING transaction_category_id
 `
 
 type CreateTransactionCategoryParams struct {

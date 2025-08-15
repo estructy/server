@@ -1,5 +1,5 @@
-// Package createcategoryrequest defines the request structure for creating a new category in the application.
-package createcategoryrequest
+// Package createtransactioncategoryrequest defines the request structure for creating a new transaction category in the application.
+package createtransactioncategoryrequest
 
 type Request struct {
 	Name  string `json:"name" validate:"required"`

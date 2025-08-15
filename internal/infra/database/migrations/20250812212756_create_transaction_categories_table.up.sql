@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS transaction_categories (
 	name VARCHAR(50) NOT NULL,
 	type VARCHAR(10) CHECK (type IN ('income', 'expense')) NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT (current_timestamp AT TIME ZONE 'UTC'),
-	deleted_at TIMESTAMPTZ DEFAULT NULL
+	deleted_at TIMESTAMPTZ DEFAULT NULL,
+	UNIQUE (name, type)
 );

@@ -1,5 +1,5 @@
-// Package createcategory provides functionality to create a new category.
-package createcategory
+// Package createtransactioncategory provides functionality to create a new category.
+package createtransactioncategory
 
 import (
 	"context"
@@ -7,11 +7,14 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	createcategoryrequest "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category/request"
+	createtransactioncategoryrequest "github.com/nahtann/controlriver.com/internal/domain/transaction_categories/use_cases/create_transaction_category/request"
 	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
 )
 
-var ErrFailedToCreateCategory = fmt.Errorf("failed to create category")
+var (
+	ErrFailedToCreateCategory = fmt.Errorf("failed to create category")
+	ErrCategoryAlreadyExists  = fmt.Errorf("category already exists")
+)
 
 type CreateCategoryUseCase struct {
 	db         *pgxpool.Pool
@@ -25,7 +28,7 @@ func NewCreateCategoryUseCase(db *pgxpool.Pool, repository *repository.Queries) 
 	}
 }
 
-func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createcategoryrequest.Request) error {
+func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createtransactioncategoryrequest.Request) error {
 	ctx := context.Background()
 
 	tx, err := uc.db.Begin(ctx)
@@ -40,6 +43,9 @@ func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createcat
 		Type: request.Type,
 	})
 	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return fmt.Errorf("%w: %s", ErrCategoryAlreadyExists, err.Error())
+		}
 		return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())
 	}
 

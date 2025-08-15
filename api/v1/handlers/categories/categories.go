@@ -1,5 +1,5 @@
-// Package categorieshandler provides a handler for category-related operations.
-package categorieshandler
+// Package transactioncategorieshandler provides a handler for category-related operations.
+package transactioncategorieshandler
 
 import (
 	"encoding/json"
@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	createcategory "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category"
-	createcategoryrequest "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category/request"
+	createtransactioncategory "github.com/nahtann/controlriver.com/internal/domain/transaction_categories/use_cases/create_transaction_category"
+	createtransactioncategoryrequest "github.com/nahtann/controlriver.com/internal/domain/transaction_categories/use_cases/create_transaction_category/request"
 	contexthelper "github.com/nahtann/controlriver.com/internal/helpers/context"
 	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
 	requesthelper "github.com/nahtann/controlriver.com/internal/helpers/request"
@@ -34,7 +34,7 @@ func (h *CategoriesHandler) CreateCategory(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	var request createcategoryrequest.Request
+	var request createtransactioncategoryrequest.Request
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		http.Error(w, fmt.Sprintf("Invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
@@ -46,10 +46,14 @@ func (h *CategoriesHandler) CreateCategory(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	createCategoryUseCase := createcategory.NewCreateCategoryUseCase(h.db, h.repository)
+	createCategoryUseCase := createtransactioncategory.NewCreateCategoryUseCase(h.db, h.repository)
 	err := createCategoryUseCase.Execute(accountID, &request)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to create category: %s", err.Error()), http.StatusInternalServerError)
+		errMappings := map[error]jsonhelper.ErrorMappings{
+			createtransactioncategory.ErrFailedToCreateCategory: {Code: http.StatusInternalServerError, Message: "Failed to create category"},
+			createtransactioncategory.ErrCategoryAlreadyExists:  {Code: http.StatusConflict, Message: "Category already exists"},
+		}
+		jsonhelper.HandleError(w, err, errMappings)
 		return
 	}
 
