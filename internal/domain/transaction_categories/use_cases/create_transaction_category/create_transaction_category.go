@@ -39,8 +39,9 @@ func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createtra
 	qtx := uc.repository.WithTx(tx)
 
 	categoryID, err := qtx.CreateTransactionCategory(ctx, repository.CreateTransactionCategoryParams{
-		Name: request.Name,
-		Type: request.Type,
+		Name:     request.Name,
+		Type:     request.Type,
+		ParentID: request.ParentID,
 	})
 	if err != nil {
 		if err.Error() == "no rows in result set" {

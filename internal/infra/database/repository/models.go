@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Account struct {
@@ -37,8 +38,22 @@ type AccountTransactionCategory struct {
 	Color                 *string   `json:"color"`
 }
 
+type Transaction struct {
+	TransactionID   uuid.UUID        `json:"transaction_id"`
+	TransactionCode string           `json:"transaction_code"`
+	AccountID       uuid.UUID        `json:"account_id"`
+	CategoryID      uuid.UUID        `json:"category_id"`
+	Amount          int32            `json:"amount"`
+	Description     *string          `json:"description"`
+	TransactionDate pgtype.Date      `json:"transaction_date"`
+	Version         *int32           `json:"version"`
+	CreatedAt       time.Time        `json:"created_at"`
+	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
+}
+
 type TransactionCategory struct {
 	TransactionCategoryID uuid.UUID  `json:"transaction_category_id"`
+	ParentID              uuid.UUID  `json:"parent_id"`
 	Name                  string     `json:"name"`
 	Type                  string     `json:"type"`
 	CreatedAt             time.Time  `json:"created_at"`

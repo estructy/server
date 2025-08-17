@@ -12,31 +12,32 @@ import (
 )
 
 const createTransactionCategory = `-- name: CreateTransactionCategory :one
-INSERT INTO transaction_categories (name, type) 
-VALUES ($1, $2) 
+INSERT INTO transaction_categories (parent_id, name, type) 
+VALUES (NULLIF($1, '00000000-0000-0000-0000-000000000000'::uuid), $2, $3) 
 ON CONFLICT (name, type) DO NOTHING 
 RETURNING transaction_category_id
 `
 
 type CreateTransactionCategoryParams struct {
-	Name string `json:"name"`
-	Type string `json:"type"`
+	ParentID interface{} `json:"parent_id"`
+	Name     string      `json:"name"`
+	Type     string      `json:"type"`
 }
 
 func (q *Queries) CreateTransactionCategory(ctx context.Context, arg CreateTransactionCategoryParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, createTransactionCategory, arg.Name, arg.Type)
+	row := q.db.QueryRow(ctx, createTransactionCategory, arg.ParentID, arg.Name, arg.Type)
 	var transaction_category_id uuid.UUID
 	err := row.Scan(&transaction_category_id)
 	return transaction_category_id, err
 }
 
 const findTransactionCategoriesByNames = `-- name: FindTransactionCategoriesByNames :many
-SELECT transaction_category_id, name, type, created_at, deleted_at FROM transaction_categories 
+SELECT transaction_category_id, parent_id, name, type, created_at, deleted_at FROM transaction_categories 
 WHERE name = ANY($1::varchar[])
 `
 
-func (q *Queries) FindTransactionCategoriesByNames(ctx context.Context, dollar_1 []string) ([]TransactionCategory, error) {
-	rows, err := q.db.Query(ctx, findTransactionCategoriesByNames, dollar_1)
+func (q *Queries) FindTransactionCategoriesByNames(ctx context.Context, name []string) ([]TransactionCategory, error) {
+	rows, err := q.db.Query(ctx, findTransactionCategoriesByNames, name)
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +47,7 @@ func (q *Queries) FindTransactionCategoriesByNames(ctx context.Context, dollar_1
 		var i TransactionCategory
 		if err := rows.Scan(
 			&i.TransactionCategoryID,
+			&i.ParentID,
 			&i.Name,
 			&i.Type,
 			&i.CreatedAt,
