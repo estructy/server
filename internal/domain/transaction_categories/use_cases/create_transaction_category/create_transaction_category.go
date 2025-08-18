@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	createtransactioncategoryrequest "github.com/nahtann/controlriver.com/internal/domain/transaction_categories/use_cases/create_transaction_category/request"
+	"github.com/nahtann/controlriver.com/internal/helpers"
 	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
 )
 
@@ -56,7 +57,7 @@ func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createtra
 		return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())
 	}
 
-	newCategoryCode := uc.incrementCategoryCode(*lastCategoryCode)
+	newCategoryCode := helpers.IncrementCode(*lastCategoryCode)
 
 	_, err = qtx.AddAccountTransactionCategories(ctx, []repository.AddAccountTransactionCategoriesParams{
 		{
@@ -75,13 +76,4 @@ func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createtra
 	}
 
 	return nil
-}
-
-func (uc *CreateCategoryUseCase) incrementCategoryCode(lastCategoryCode string) string {
-	var prefix string
-	var number int
-	fmt.Sscanf(lastCategoryCode, "%2s-%d", &prefix, &number)
-	number++ // Increment the numeric part
-
-	return fmt.Sprintf("%s-%02d", prefix, number) // Format it back to the same structure
 }

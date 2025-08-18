@@ -8,6 +8,7 @@ import (
 	accountshandler "github.com/nahtann/controlriver.com/api/v1/handlers/accounts"
 	transactioncategorieshandler "github.com/nahtann/controlriver.com/api/v1/handlers/categories"
 	healthhandler "github.com/nahtann/controlriver.com/api/v1/handlers/health"
+	transactionshandler "github.com/nahtann/controlriver.com/api/v1/handlers/transactions"
 	usershandler "github.com/nahtann/controlriver.com/api/v1/handlers/users"
 	middleswares "github.com/nahtann/controlriver.com/api/v1/middlewares"
 	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
@@ -35,6 +36,12 @@ func categories(router *http.ServeMux, middlewares *middleswares.MiddlewareOrche
 	router.HandleFunc("POST /categories", middlewares.Chain(categoriesHandler.CreateCategory, middlewares.Logger, middlewares.Account))
 }
 
+func transactions(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {
+	transactionsHandler := transactionshandler.NewTransactionsHandler(repository)
+
+	router.HandleFunc("POST /transactions", middlewares.Chain(transactionsHandler.CreateTransaction, middlewares.Logger, middlewares.Account))
+}
+
 func NewRouterV1(middlewares *middleswares.MiddlewareOrchestrator, db *pgxpool.Pool, repository *repository.Queries) *http.ServeMux {
 	mux := http.NewServeMux()
 
@@ -42,6 +49,7 @@ func NewRouterV1(middlewares *middleswares.MiddlewareOrchestrator, db *pgxpool.P
 	users(mux, middlewares, repository)
 	accounts(mux, middlewares, db, repository)
 	categories(mux, middlewares, db, repository)
+	transactions(mux, middlewares, repository)
 
 	return mux
 }

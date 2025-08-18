@@ -45,7 +45,7 @@ type Transaction struct {
 	CategoryID      uuid.UUID        `json:"category_id"`
 	Amount          int32            `json:"amount"`
 	Description     *string          `json:"description"`
-	TransactionDate pgtype.Date      `json:"transaction_date"`
+	TransactionDate time.Time        `json:"transaction_date"`
 	Version         *int32           `json:"version"`
 	CreatedAt       time.Time        `json:"created_at"`
 	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
