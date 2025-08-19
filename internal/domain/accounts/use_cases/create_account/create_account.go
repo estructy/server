@@ -38,6 +38,8 @@ var (
 		"#1ABC9C", // Teal
 		"#34495E", // Dark Blue
 	}
+
+	categoryCodePrefix = "AC"
 )
 
 type CreateAccountUseCase struct {
@@ -94,7 +96,7 @@ func (uc *CreateAccountUseCase) Execute(userID uuid.UUID, request createaccountr
 
 	accountCategories := []repository.AddAccountCategoriesParams{}
 	for index, category := range categories {
-		categoryCode := fmt.Sprintf("TC-%02d", index+1)
+		categoryCode := fmt.Sprintf("%s-%02d", categoryCodePrefix, index+1)
 		color := colors[index%len(colors)]
 		newUUID, err := uuid.NewV7()
 		if err != nil {
@@ -104,9 +106,10 @@ func (uc *CreateAccountUseCase) Execute(userID uuid.UUID, request createaccountr
 		accountCategories = append(accountCategories, repository.AddAccountCategoriesParams{
 			AccountCategoryID: newUUID,
 			CategoryCode:      &categoryCode,
-			AccountID:         accountID,
-			CategoryID:        category.CategoryID,
+			AccountID:         &accountID,
+			CategoryID:        &category.CategoryID,
 			Color:             &color,
+			ParentID:          nil,
 		})
 	}
 

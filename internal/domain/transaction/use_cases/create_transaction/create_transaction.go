@@ -14,6 +14,7 @@ import (
 
 var (
 	ErrFailedToCreateTransaction = fmt.Errorf("failed to create transaction")
+	ErrCategoryNotFound          = fmt.Errorf("category not found")
 
 	initialTransactionCode = "TR-000"
 )
@@ -31,7 +32,7 @@ func NewCreateTransactionUseCase(repository *repository.Queries) *CreateTransact
 func (uc *CreateTransactionUseCase) Execute(accountID uuid.UUID, request createtransactionrequest.Request) error {
 	ctx := context.Background()
 
-	transactionCode, err := uc.repository.FindLastTransactionCode(ctx, accountID)
+	transactionCode, err := uc.repository.FindLastTransactionCode(ctx, &accountID)
 	if err != nil {
 		if err.Error() != "no rows in result set" {
 			return fmt.Errorf("%w: %s", ErrFailedToCreateTransaction, err.Error())
@@ -50,11 +51,22 @@ func (uc *CreateTransactionUseCase) Execute(accountID uuid.UUID, request createt
 		return fmt.Errorf("invalid transaction date format: %w", err)
 	}
 
+	category, err := uc.repository.FindAccountCategoryByCode(ctx, repository.FindAccountCategoryByCodeParams{
+		AccountID:    &accountID,
+		CategoryCode: &request.CategoryCode,
+	})
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return fmt.Errorf("%w: %s", ErrCategoryNotFound, err.Error())
+		}
+		return fmt.Errorf("%w: %s", ErrFailedToCreateTransaction, err.Error())
+	}
+
 	err = uc.repository.CreateTransaction(ctx, repository.CreateTransactionParams{
 		TransactionID:   transactionID,
 		TransactionCode: newTransactionCode,
-		AccountID:       accountID,
-		CategoryID:      request.CategoryID,
+		AccountID:       &accountID,
+		CategoryID:      &category.AccountCategoryID,
 		Amount:          int32(request.Amount),
 		Description:     &request.Description,
 		TransactionDate: transactionDate,

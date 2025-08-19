@@ -52,6 +52,7 @@ func (h *CategoriesHandler) CreateCategory(w http.ResponseWriter, r *http.Reques
 		errMappings := map[error]jsonhelper.ErrorMappings{
 			createcategory.ErrFailedToCreateCategory: {Code: http.StatusInternalServerError, Message: "Failed to create category"},
 			createcategory.ErrCategoryAlreadyExists:  {Code: http.StatusConflict, Message: "Category already exists"},
+			createcategory.ErrParentCategoryNotFound: {Code: http.StatusNotFound, Message: "Parent category not found"},
 		}
 		jsonhelper.HandleError(w, err, errMappings)
 		return

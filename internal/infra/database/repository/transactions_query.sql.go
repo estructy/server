@@ -27,13 +27,13 @@ INSERT INTO transactions (
 `
 
 type CreateTransactionParams struct {
-	TransactionID   uuid.UUID `json:"transaction_id"`
-	TransactionCode string    `json:"transaction_code"`
-	AccountID       uuid.UUID `json:"account_id"`
-	CategoryID      uuid.UUID `json:"category_id"`
-	Amount          int32     `json:"amount"`
-	Description     *string   `json:"description"`
-	TransactionDate time.Time `json:"transaction_date"`
+	TransactionID   uuid.UUID  `json:"transaction_id"`
+	TransactionCode string     `json:"transaction_code"`
+	AccountID       *uuid.UUID `json:"account_id"`
+	CategoryID      *uuid.UUID `json:"category_id"`
+	Amount          int32      `json:"amount"`
+	Description     *string    `json:"description"`
+	TransactionDate time.Time  `json:"transaction_date"`
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) error {
@@ -53,7 +53,7 @@ const findLastTransactionCode = `-- name: FindLastTransactionCode :one
 SELECT transaction_code FROM transactions WHERE account_id = $1 ORDER BY transaction_code DESC LIMIT 1
 `
 
-func (q *Queries) FindLastTransactionCode(ctx context.Context, accountID uuid.UUID) (string, error) {
+func (q *Queries) FindLastTransactionCode(ctx context.Context, accountID *uuid.UUID) (string, error) {
 	row := q.db.QueryRow(ctx, findLastTransactionCode, accountID)
 	var transaction_code string
 	err := row.Scan(&transaction_code)

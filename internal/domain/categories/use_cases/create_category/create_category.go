@@ -15,6 +15,7 @@ import (
 var (
 	ErrFailedToCreateCategory = fmt.Errorf("failed to create category")
 	ErrCategoryAlreadyExists  = fmt.Errorf("category already exists")
+	ErrParentCategoryNotFound = fmt.Errorf("parent category not found")
 )
 
 type CreateCategoryUseCase struct {
@@ -40,9 +41,8 @@ func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createcat
 	qtx := uc.repository.WithTx(tx)
 
 	categoryID, err := qtx.CreateCategory(ctx, repository.CreateCategoryParams{
-		Name:     request.Name,
-		Type:     request.Type,
-		ParentID: request.ParentID,
+		Name: request.Name,
+		Type: request.Type,
 	})
 	if err != nil {
 		if err.Error() == "no rows in result set" {
@@ -52,7 +52,7 @@ func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createcat
 	}
 
 	// @todo: due to race conditions, could implement a retry mechanism here
-	lastCategoryCode, err := qtx.FindLastAccountCategoryCode(ctx, accountID)
+	lastCategoryCode, err := qtx.FindLastAccountCategoryCode(ctx, &accountID)
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())
 	}
@@ -63,14 +63,31 @@ func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createcat
 		return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())
 	}
 
+	category := repository.AddAccountCategoriesParams{
+		AccountCategoryID: newUUID,
+		Color:             &request.Color,
+		AccountID:         &accountID,
+		CategoryID:        &categoryID,
+		CategoryCode:      &newCategoryCode,
+	}
+
+	if request.ParentCode != "" {
+		parentCategory, err := qtx.FindAccountCategoryByCode(ctx, repository.FindAccountCategoryByCodeParams{
+			AccountID:    &accountID,
+			CategoryCode: &request.ParentCode,
+		})
+		if err != nil {
+			if err.Error() == "no rows in result set" {
+				return fmt.Errorf("%w: %s", ErrParentCategoryNotFound, err.Error())
+			}
+			return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())
+		}
+
+		category.ParentID = &parentCategory.AccountCategoryID
+	}
+
 	_, err = qtx.AddAccountCategories(ctx, []repository.AddAccountCategoriesParams{
-		{
-			AccountCategoryID: newUUID,
-			Color:             &request.Color,
-			AccountID:         accountID,
-			CategoryID:        categoryID,
-			CategoryCode:      &newCategoryCode,
-		},
+		category,
 	})
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())

@@ -12,27 +12,26 @@ import (
 )
 
 const createCategory = `-- name: CreateCategory :one
-INSERT INTO categories (parent_id, name, type) 
-VALUES (NULLIF($1, '00000000-0000-0000-0000-000000000000'::uuid), $2, $3) 
+INSERT INTO categories (name, type) 
+VALUES ($1, $2) 
 ON CONFLICT (name, type) DO NOTHING 
 RETURNING category_id
 `
 
 type CreateCategoryParams struct {
-	ParentID interface{} `json:"parent_id"`
-	Name     string      `json:"name"`
-	Type     string      `json:"type"`
+	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
 func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, createCategory, arg.ParentID, arg.Name, arg.Type)
+	row := q.db.QueryRow(ctx, createCategory, arg.Name, arg.Type)
 	var category_id uuid.UUID
 	err := row.Scan(&category_id)
 	return category_id, err
 }
 
 const findCategoriesByNames = `-- name: FindCategoriesByNames :many
-SELECT category_id, parent_id, name, type, created_at, deleted_at FROM categories 
+SELECT category_id, name, type, created_at, deleted_at FROM categories 
 WHERE name = ANY($1::varchar[])
 `
 
@@ -47,7 +46,6 @@ func (q *Queries) FindCategoriesByNames(ctx context.Context, name []string) ([]C
 		var i Category
 		if err := rows.Scan(
 			&i.CategoryID,
-			&i.ParentID,
 			&i.Name,
 			&i.Type,
 			&i.CreatedAt,

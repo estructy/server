@@ -51,6 +51,10 @@ func (uc *TransactionsHandler) CreateTransaction(w http.ResponseWriter, r *http.
 				Code:    http.StatusInternalServerError,
 				Message: "Failed to create transaction",
 			},
+			createtransaction.ErrCategoryNotFound: {
+				Code:    http.StatusNotFound,
+				Message: "Category not found",
+			},
 		}
 		jsonhelper.HandleError(w, err, errMappings)
 		return

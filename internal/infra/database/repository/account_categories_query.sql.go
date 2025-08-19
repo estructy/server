@@ -12,18 +12,42 @@ import (
 )
 
 type AddAccountCategoriesParams struct {
-	AccountCategoryID uuid.UUID `json:"account_category_id"`
-	CategoryCode      *string   `json:"category_code"`
-	AccountID         uuid.UUID `json:"account_id"`
-	CategoryID        uuid.UUID `json:"category_id"`
-	Color             *string   `json:"color"`
+	AccountCategoryID uuid.UUID  `json:"account_category_id"`
+	CategoryCode      *string    `json:"category_code"`
+	ParentID          *uuid.UUID `json:"parent_id"`
+	AccountID         *uuid.UUID `json:"account_id"`
+	CategoryID        *uuid.UUID `json:"category_id"`
+	Color             *string    `json:"color"`
+}
+
+const findAccountCategoryByCode = `-- name: FindAccountCategoryByCode :one
+SELECT account_category_id, category_code, parent_id, account_id, category_id, color FROM account_categories WHERE account_id = $1 AND category_code = $2
+`
+
+type FindAccountCategoryByCodeParams struct {
+	AccountID    *uuid.UUID `json:"account_id"`
+	CategoryCode *string    `json:"category_code"`
+}
+
+func (q *Queries) FindAccountCategoryByCode(ctx context.Context, arg FindAccountCategoryByCodeParams) (AccountCategory, error) {
+	row := q.db.QueryRow(ctx, findAccountCategoryByCode, arg.AccountID, arg.CategoryCode)
+	var i AccountCategory
+	err := row.Scan(
+		&i.AccountCategoryID,
+		&i.CategoryCode,
+		&i.ParentID,
+		&i.AccountID,
+		&i.CategoryID,
+		&i.Color,
+	)
+	return i, err
 }
 
 const findLastAccountCategoryCode = `-- name: FindLastAccountCategoryCode :one
 SELECT category_code FROM account_categories WHERE account_id = $1 ORDER BY category_code DESC LIMIT 1
 `
 
-func (q *Queries) FindLastAccountCategoryCode(ctx context.Context, accountID uuid.UUID) (*string, error) {
+func (q *Queries) FindLastAccountCategoryCode(ctx context.Context, accountID *uuid.UUID) (*string, error) {
 	row := q.db.QueryRow(ctx, findLastAccountCategoryCode, accountID)
 	var category_code *string
 	err := row.Scan(&category_code)

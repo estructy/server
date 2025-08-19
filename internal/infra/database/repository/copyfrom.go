@@ -31,6 +31,7 @@ func (r iteratorForAddAccountCategories) Values() ([]interface{}, error) {
 	return []interface{}{
 		r.rows[0].AccountCategoryID,
 		r.rows[0].CategoryCode,
+		r.rows[0].ParentID,
 		r.rows[0].AccountID,
 		r.rows[0].CategoryID,
 		r.rows[0].Color,
@@ -42,5 +43,5 @@ func (r iteratorForAddAccountCategories) Err() error {
 }
 
 func (q *Queries) AddAccountCategories(ctx context.Context, arg []AddAccountCategoriesParams) (int64, error) {
-	return q.db.CopyFrom(ctx, []string{"account_categories"}, []string{"account_category_id", "category_code", "account_id", "category_id", "color"}, &iteratorForAddAccountCategories{rows: arg})
+	return q.db.CopyFrom(ctx, []string{"account_categories"}, []string{"account_category_id", "category_code", "parent_id", "account_id", "category_id", "color"}, &iteratorForAddAccountCategories{rows: arg})
 }
