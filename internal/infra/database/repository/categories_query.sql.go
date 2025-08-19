@@ -11,26 +11,54 @@ import (
 	"github.com/google/uuid"
 )
 
-const createCategory = `-- name: CreateCategory :exec
-INSERT INTO categories (category_id, account_id, name, type, color) 
-VALUES ($1, $2, $3, $4, $5)
+const createCategory = `-- name: CreateCategory :one
+INSERT INTO categories (parent_id, name, type) 
+VALUES (NULLIF($1, '00000000-0000-0000-0000-000000000000'::uuid), $2, $3) 
+ON CONFLICT (name, type) DO NOTHING 
+RETURNING category_id
 `
 
 type CreateCategoryParams struct {
-	CategoryID uuid.UUID `json:"category_id"`
-	AccountID  uuid.UUID `json:"account_id"`
-	Name       string    `json:"name"`
-	Type       string    `json:"type"`
-	Color      *string   `json:"color"`
+	ParentID interface{} `json:"parent_id"`
+	Name     string      `json:"name"`
+	Type     string      `json:"type"`
 }
 
-func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) error {
-	_, err := q.db.Exec(ctx, createCategory,
-		arg.CategoryID,
-		arg.AccountID,
-		arg.Name,
-		arg.Type,
-		arg.Color,
-	)
-	return err
+func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, createCategory, arg.ParentID, arg.Name, arg.Type)
+	var category_id uuid.UUID
+	err := row.Scan(&category_id)
+	return category_id, err
+}
+
+const findCategoriesByNames = `-- name: FindCategoriesByNames :many
+SELECT category_id, parent_id, name, type, created_at, deleted_at FROM categories 
+WHERE name = ANY($1::varchar[])
+`
+
+func (q *Queries) FindCategoriesByNames(ctx context.Context, name []string) ([]Category, error) {
+	rows, err := q.db.Query(ctx, findCategoriesByNames, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Category
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(
+			&i.CategoryID,
+			&i.ParentID,
+			&i.Name,
+			&i.Type,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

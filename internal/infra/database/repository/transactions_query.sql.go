@@ -64,8 +64,8 @@ const findTransactionById = `-- name: FindTransactionById :one
 SELECT 
 	t.transaction_code, 
 	atc.category_code AS category_code,
-	tc.name AS category_name,
-	tc.type AS category_type,
+	c.name AS category_name,
+	c.type AS category_type,
 	t.transaction_date,
 	t.amount, 
 	t.description, 
@@ -73,8 +73,8 @@ SELECT
 FROM transactions t
 LEFT JOIN account_transaction_categories atc ON 
 	t.category_id = atc.transaction_category_id
-LEFT JOIN transaction_categories tc ON 
-	atc.transaction_category_id = tc.id
+LEFT JOIN categories c ON 
+	atc.transaction_category_id = c.id
 WHERE transaction_id = $1
 `
 

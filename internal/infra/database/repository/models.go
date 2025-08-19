@@ -38,6 +38,15 @@ type AccountTransactionCategory struct {
 	Color                 *string   `json:"color"`
 }
 
+type Category struct {
+	CategoryID uuid.UUID  `json:"category_id"`
+	ParentID   uuid.UUID  `json:"parent_id"`
+	Name       string     `json:"name"`
+	Type       string     `json:"type"`
+	CreatedAt  time.Time  `json:"created_at"`
+	DeletedAt  *time.Time `json:"deleted_at"`
+}
+
 type Transaction struct {
 	TransactionID   uuid.UUID        `json:"transaction_id"`
 	TransactionCode string           `json:"transaction_code"`
@@ -49,15 +58,6 @@ type Transaction struct {
 	Version         *int32           `json:"version"`
 	CreatedAt       time.Time        `json:"created_at"`
 	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
-}
-
-type TransactionCategory struct {
-	TransactionCategoryID uuid.UUID  `json:"transaction_category_id"`
-	ParentID              uuid.UUID  `json:"parent_id"`
-	Name                  string     `json:"name"`
-	Type                  string     `json:"type"`
-	CreatedAt             time.Time  `json:"created_at"`
-	DeletedAt             *time.Time `json:"deleted_at"`
 }
 
 type User struct {

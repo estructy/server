@@ -1,5 +1,5 @@
-// Package createtransactioncategory provides functionality to create a new category.
-package createtransactioncategory
+// Package createcategory provides functionality to create a new category.
+package createcategory
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	createtransactioncategoryrequest "github.com/nahtann/controlriver.com/internal/domain/transaction_categories/use_cases/create_transaction_category/request"
+	createcategoryrequest "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category/request"
 	"github.com/nahtann/controlriver.com/internal/helpers"
 	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
 )
@@ -29,7 +29,7 @@ func NewCreateCategoryUseCase(db *pgxpool.Pool, repository *repository.Queries) 
 	}
 }
 
-func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createtransactioncategoryrequest.Request) error {
+func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createcategoryrequest.Request) error {
 	ctx := context.Background()
 
 	tx, err := uc.db.Begin(ctx)
@@ -39,7 +39,7 @@ func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createtra
 	defer tx.Rollback(ctx)
 	qtx := uc.repository.WithTx(tx)
 
-	categoryID, err := qtx.CreateTransactionCategory(ctx, repository.CreateTransactionCategoryParams{
+	categoryID, err := qtx.CreateCategory(ctx, repository.CreateCategoryParams{
 		Name:     request.Name,
 		Type:     request.Type,
 		ParentID: request.ParentID,

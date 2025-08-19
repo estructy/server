@@ -1,5 +1,5 @@
-// Package createtransactioncategoryrequest defines the request structure for creating a new transaction category in the application.
-package createtransactioncategoryrequest
+// Package createcategoryrequest defines the request structure for creating a new transaction category in the application.
+package createcategoryrequest
 
 import "github.com/google/uuid"
 

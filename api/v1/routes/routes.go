@@ -6,7 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	accountshandler "github.com/nahtann/controlriver.com/api/v1/handlers/accounts"
-	transactioncategorieshandler "github.com/nahtann/controlriver.com/api/v1/handlers/categories"
+	categorieshandler "github.com/nahtann/controlriver.com/api/v1/handlers/categories"
 	healthhandler "github.com/nahtann/controlriver.com/api/v1/handlers/health"
 	transactionshandler "github.com/nahtann/controlriver.com/api/v1/handlers/transactions"
 	usershandler "github.com/nahtann/controlriver.com/api/v1/handlers/users"
@@ -31,7 +31,7 @@ func accounts(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchest
 }
 
 func categories(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, db *pgxpool.Pool, repository *repository.Queries) {
-	categoriesHandler := transactioncategorieshandler.NewCategoriesHandler(db, repository)
+	categoriesHandler := categorieshandler.NewCategoriesHandler(db, repository)
 
 	router.HandleFunc("POST /categories", middlewares.Chain(categoriesHandler.CreateCategory, middlewares.Logger, middlewares.Account))
 }

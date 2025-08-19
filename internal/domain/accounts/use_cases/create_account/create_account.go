@@ -18,7 +18,7 @@ var (
 	ErrFailedToCreateAccount    = fmt.Errorf("failed to create account")
 	ErrFailedToAddAccountMember = fmt.Errorf("failed to add account member")
 
-	defaultTransactionCategories = []string{
+	defaultCategories = []string{
 		"alimentação",
 		"transporte",
 		"entreterimento",
@@ -87,20 +87,20 @@ func (uc *CreateAccountUseCase) Execute(userID uuid.UUID, request createaccountr
 	}
 
 	// @todo: Implmement cache for transaction categories.
-	transactionCategories, err := qtx.FindTransactionCategoriesByNames(ctx, defaultTransactionCategories)
+	categories, err := qtx.FindCategoriesByNames(ctx, defaultCategories)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrFailedToCreateAccount, err.Error())
 	}
 
 	accountTransactionCategories := []repository.AddAccountTransactionCategoriesParams{}
-	for index, category := range transactionCategories {
+	for index, category := range categories {
 		categoryCode := fmt.Sprintf("TC-%02d", index+1)
 		color := colors[index%len(colors)]
 
 		accountTransactionCategories = append(accountTransactionCategories, repository.AddAccountTransactionCategoriesParams{
 			CategoryCode:          &categoryCode,
 			AccountID:             accountID,
-			TransactionCategoryID: category.TransactionCategoryID,
+			TransactionCategoryID: category.CategoryID,
 			Color:                 &color,
 		})
 	}

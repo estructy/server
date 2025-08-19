@@ -37,5 +37,7 @@ The server will be available at `http://localhost:8080`.
 
 ### TODO 
 
-- [ ] User should be able to create a new category
-    - [x] Category should be associated with the user account
+- [x] Refactor transaction_categories to categories 
+- [ ] Refactor account_transaction_categories to account_categories 
+- [ ] Create report by category
+- [ ] Update docs
