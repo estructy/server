@@ -22,20 +22,20 @@ type Account struct {
 	DeletedAt       *time.Time `json:"deleted_at"`
 }
 
+type AccountCategory struct {
+	AccountCategoryID uuid.UUID `json:"account_category_id"`
+	CategoryCode      *string   `json:"category_code"`
+	AccountID         uuid.UUID `json:"account_id"`
+	CategoryID        uuid.UUID `json:"category_id"`
+	Color             *string   `json:"color"`
+}
+
 type AccountMember struct {
 	AccountID uuid.UUID  `json:"account_id"`
 	UserID    uuid.UUID  `json:"user_id"`
 	Role      string     `json:"role"`
 	JoinedAt  time.Time  `json:"joined_at"`
 	RemovedAt *time.Time `json:"removed_at"`
-}
-
-type AccountTransactionCategory struct {
-	ID                    uuid.UUID `json:"id"`
-	CategoryCode          *string   `json:"category_code"`
-	AccountID             uuid.UUID `json:"account_id"`
-	TransactionCategoryID uuid.UUID `json:"transaction_category_id"`
-	Color                 *string   `json:"color"`
 }
 
 type Category struct {

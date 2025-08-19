@@ -20,7 +20,7 @@ func main() {
 }
 
 func transactionCategoriesSeed(db *pgxpool.Pool) {
-	query := `INSERT INTO transaction_categories (name, type)
+	query := `INSERT INTO categories (name, type)
 VALUES ('alimentação', 'expense'), ('transporte', 'expense'), ('entreterimento', 'expense'),
 	('educação', 'expense'), ('saúde', 'expense'), ('moradia', 'expense'), ('investimentos', 'income'), ('salário', 'income');`
 

@@ -38,6 +38,6 @@ The server will be available at `http://localhost:8080`.
 ### TODO 
 
 - [x] Refactor transaction_categories to categories 
-- [ ] Refactor account_transaction_categories to account_categories 
+- [x] Refactor account_transaction_categories to account_categories 
 - [ ] Create report by category
 - [ ] Update docs

@@ -9,13 +9,13 @@ import (
 	"context"
 )
 
-// iteratorForAddAccountTransactionCategories implements pgx.CopyFromSource.
-type iteratorForAddAccountTransactionCategories struct {
-	rows                 []AddAccountTransactionCategoriesParams
+// iteratorForAddAccountCategories implements pgx.CopyFromSource.
+type iteratorForAddAccountCategories struct {
+	rows                 []AddAccountCategoriesParams
 	skippedFirstNextCall bool
 }
 
-func (r *iteratorForAddAccountTransactionCategories) Next() bool {
+func (r *iteratorForAddAccountCategories) Next() bool {
 	if len(r.rows) == 0 {
 		return false
 	}
@@ -27,19 +27,20 @@ func (r *iteratorForAddAccountTransactionCategories) Next() bool {
 	return len(r.rows) > 0
 }
 
-func (r iteratorForAddAccountTransactionCategories) Values() ([]interface{}, error) {
+func (r iteratorForAddAccountCategories) Values() ([]interface{}, error) {
 	return []interface{}{
+		r.rows[0].AccountCategoryID,
 		r.rows[0].CategoryCode,
 		r.rows[0].AccountID,
-		r.rows[0].TransactionCategoryID,
+		r.rows[0].CategoryID,
 		r.rows[0].Color,
 	}, nil
 }
 
-func (r iteratorForAddAccountTransactionCategories) Err() error {
+func (r iteratorForAddAccountCategories) Err() error {
 	return nil
 }
 
-func (q *Queries) AddAccountTransactionCategories(ctx context.Context, arg []AddAccountTransactionCategoriesParams) (int64, error) {
-	return q.db.CopyFrom(ctx, []string{"account_transaction_categories"}, []string{"category_code", "account_id", "transaction_category_id", "color"}, &iteratorForAddAccountTransactionCategories{rows: arg})
+func (q *Queries) AddAccountCategories(ctx context.Context, arg []AddAccountCategoriesParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"account_categories"}, []string{"account_category_id", "category_code", "account_id", "category_id", "color"}, &iteratorForAddAccountCategories{rows: arg})
 }

@@ -92,20 +92,25 @@ func (uc *CreateAccountUseCase) Execute(userID uuid.UUID, request createaccountr
 		return nil, fmt.Errorf("%w: %s", ErrFailedToCreateAccount, err.Error())
 	}
 
-	accountTransactionCategories := []repository.AddAccountTransactionCategoriesParams{}
+	accountCategories := []repository.AddAccountCategoriesParams{}
 	for index, category := range categories {
 		categoryCode := fmt.Sprintf("TC-%02d", index+1)
 		color := colors[index%len(colors)]
+		newUUID, err := uuid.NewV7()
+		if err != nil {
+			return nil, fmt.Errorf("%w: %s", ErrFailedToCreateAccount, err.Error())
+		}
 
-		accountTransactionCategories = append(accountTransactionCategories, repository.AddAccountTransactionCategoriesParams{
-			CategoryCode:          &categoryCode,
-			AccountID:             accountID,
-			TransactionCategoryID: category.CategoryID,
-			Color:                 &color,
+		accountCategories = append(accountCategories, repository.AddAccountCategoriesParams{
+			AccountCategoryID: newUUID,
+			CategoryCode:      &categoryCode,
+			AccountID:         accountID,
+			CategoryID:        category.CategoryID,
+			Color:             &color,
 		})
 	}
 
-	_, err = qtx.AddAccountTransactionCategories(ctx, accountTransactionCategories)
+	_, err = qtx.AddAccountCategories(ctx, accountCategories)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrFailedToCreateAccount, err.Error())
 	}

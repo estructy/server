@@ -52,19 +52,24 @@ func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createcat
 	}
 
 	// @todo: due to race conditions, could implement a retry mechanism here
-	lastCategoryCode, err := qtx.FindLastAccountTransactionCategoryCode(ctx, accountID)
+	lastCategoryCode, err := qtx.FindLastAccountCategoryCode(ctx, accountID)
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())
 	}
 
 	newCategoryCode := helpers.IncrementCode(*lastCategoryCode)
+	newUUID, err := uuid.NewV7()
+	if err != nil {
+		return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())
+	}
 
-	_, err = qtx.AddAccountTransactionCategories(ctx, []repository.AddAccountTransactionCategoriesParams{
+	_, err = qtx.AddAccountCategories(ctx, []repository.AddAccountCategoriesParams{
 		{
-			Color:                 &request.Color,
-			AccountID:             accountID,
-			TransactionCategoryID: categoryID,
-			CategoryCode:          &newCategoryCode,
+			AccountCategoryID: newUUID,
+			Color:             &request.Color,
+			AccountID:         accountID,
+			CategoryID:        categoryID,
+			CategoryCode:      &newCategoryCode,
 		},
 	})
 	if err != nil {

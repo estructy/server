@@ -63,7 +63,7 @@ func (q *Queries) FindLastTransactionCode(ctx context.Context, accountID uuid.UU
 const findTransactionById = `-- name: FindTransactionById :one
 SELECT 
 	t.transaction_code, 
-	atc.category_code AS category_code,
+	ac.category_code AS category_code,
 	c.name AS category_name,
 	c.type AS category_type,
 	t.transaction_date,
@@ -71,10 +71,10 @@ SELECT
 	t.description, 
 	t.created_at
 FROM transactions t
-LEFT JOIN account_transaction_categories atc ON 
-	t.category_id = atc.transaction_category_id
+LEFT JOIN account_categories ac ON 
+	t.category_id = ac.category_id
 LEFT JOIN categories c ON 
-	atc.transaction_category_id = c.id
+	ac.category_id = c.category_id
 WHERE transaction_id = $1
 `
 
