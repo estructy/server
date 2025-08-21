@@ -104,3 +104,65 @@ func (q *Queries) FindTransactionById(ctx context.Context, transactionID uuid.UU
 	)
 	return i, err
 }
+
+const findTransactionsByType = `-- name: FindTransactionsByType :many
+SELECT 
+	c.name,
+  t.amount, 
+	t.description, 
+	t.transaction_date 
+FROM transactions t
+LEFT JOIN account_categories ac ON ac.account_category_id = t.category_id
+LEFT JOIN categories c ON c.category_id = ac.category_id
+WHERE 
+	t.account_id = $1
+	AND c.type = $2
+	AND t.transaction_date BETWEEN $3 AND $4
+ORDER BY 
+    c.name ASC,
+    t.transaction_date ASC
+`
+
+type FindTransactionsByTypeParams struct {
+	AccountID *uuid.UUID `json:"account_id"`
+	Type      string     `json:"type"`
+	From      time.Time  `json:"from"`
+	To        time.Time  `json:"to"`
+}
+
+type FindTransactionsByTypeRow struct {
+	Name            *string   `json:"name"`
+	Amount          int32     `json:"amount"`
+	Description     *string   `json:"description"`
+	TransactionDate time.Time `json:"transaction_date"`
+}
+
+func (q *Queries) FindTransactionsByType(ctx context.Context, arg FindTransactionsByTypeParams) ([]FindTransactionsByTypeRow, error) {
+	rows, err := q.db.Query(ctx, findTransactionsByType,
+		arg.AccountID,
+		arg.Type,
+		arg.From,
+		arg.To,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindTransactionsByTypeRow
+	for rows.Next() {
+		var i FindTransactionsByTypeRow
+		if err := rows.Scan(
+			&i.Name,
+			&i.Amount,
+			&i.Description,
+			&i.TransactionDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

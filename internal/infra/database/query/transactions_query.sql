@@ -30,3 +30,20 @@ LEFT JOIN account_categories ac ON
 LEFT JOIN categories c ON 
 	ac.category_id = c.category_id
 WHERE transaction_id = $1;
+
+-- name: FindTransactionsByType :many
+SELECT 
+	c.name,
+  t.amount, 
+	t.description, 
+	t.transaction_date 
+FROM transactions t
+LEFT JOIN account_categories ac ON ac.account_category_id = t.category_id
+LEFT JOIN categories c ON c.category_id = ac.category_id
+WHERE 
+	t.account_id = $1
+	AND c.type = $2
+	AND t.transaction_date BETWEEN sqlc.arg('from') AND sqlc.arg('to')
+ORDER BY 
+    c.name ASC,
+    t.transaction_date ASC;

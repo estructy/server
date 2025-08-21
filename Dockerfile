@@ -1,4 +1,4 @@
-FROM golang:1.24
+FROM golang:1.25
 
 ENV PROJECT_DIR=/app \
     GO111MODULE=on \
@@ -9,7 +9,7 @@ RUN mkdir "/build"
 COPY . .
 
 # copy migrations file to image
-COPY ./migrations /app/migrations
+COPY ./internal/infra/database/migrations/ /app/migrations
 
 
 RUN go get github.com/githubnemo/CompileDaemon
