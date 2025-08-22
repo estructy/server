@@ -14,58 +14,6 @@ import (
 
 const getReportByCategories = `-- name: GetReportByCategories :many
 SELECT
-  c.name,
-	sum(t.amount) AS total_spent
-FROM transactions t
-LEFT JOIN account_categories ac ON ac.account_category_id = t.account_category_id
-LEFT JOIN categories c ON c.category_id = ac.category_id
-WHERE
-	t.account_id = $1
-	AND c.type = $2
-	AND t.date BETWEEN $3 AND $4 
-GROUP BY c.name
-ORDER BY total_spent DESC
-`
-
-type GetReportByCategoriesParams struct {
-	AccountID *uuid.UUID `json:"account_id"`
-	Type      string     `json:"type"`
-	From      time.Time  `json:"from"`
-	To        time.Time  `json:"to"`
-}
-
-type GetReportByCategoriesRow struct {
-	Name       *string `json:"name"`
-	TotalSpent int64   `json:"total_spent"`
-}
-
-func (q *Queries) GetReportByCategories(ctx context.Context, arg GetReportByCategoriesParams) ([]GetReportByCategoriesRow, error) {
-	rows, err := q.db.Query(ctx, getReportByCategories,
-		arg.AccountID,
-		arg.Type,
-		arg.From,
-		arg.To,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetReportByCategoriesRow
-	for rows.Next() {
-		var i GetReportByCategoriesRow
-		if err := rows.Scan(&i.Name, &i.TotalSpent); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getReportByCategoriesWithParentCategory = `-- name: GetReportByCategoriesWithParentCategory :many
-SELECT
   coalesce(pc_c.name, c.name) AS parent,
   c.name,
 	sum(t.amount) AS total_spent
@@ -84,21 +32,21 @@ GROUP BY c.name, pc_c.name
 ORDER BY total_spent DESC
 `
 
-type GetReportByCategoriesWithParentCategoryParams struct {
+type GetReportByCategoriesParams struct {
 	AccountID *uuid.UUID `json:"account_id"`
 	Type      string     `json:"type"`
 	From      time.Time  `json:"from"`
 	To        time.Time  `json:"to"`
 }
 
-type GetReportByCategoriesWithParentCategoryRow struct {
+type GetReportByCategoriesRow struct {
 	Parent     string  `json:"parent"`
 	Name       *string `json:"name"`
 	TotalSpent int64   `json:"total_spent"`
 }
 
-func (q *Queries) GetReportByCategoriesWithParentCategory(ctx context.Context, arg GetReportByCategoriesWithParentCategoryParams) ([]GetReportByCategoriesWithParentCategoryRow, error) {
-	rows, err := q.db.Query(ctx, getReportByCategoriesWithParentCategory,
+func (q *Queries) GetReportByCategories(ctx context.Context, arg GetReportByCategoriesParams) ([]GetReportByCategoriesRow, error) {
+	rows, err := q.db.Query(ctx, getReportByCategories,
 		arg.AccountID,
 		arg.Type,
 		arg.From,
@@ -108,9 +56,9 @@ func (q *Queries) GetReportByCategoriesWithParentCategory(ctx context.Context, a
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetReportByCategoriesWithParentCategoryRow
+	var items []GetReportByCategoriesRow
 	for rows.Next() {
-		var i GetReportByCategoriesWithParentCategoryRow
+		var i GetReportByCategoriesRow
 		if err := rows.Scan(&i.Parent, &i.Name, &i.TotalSpent); err != nil {
 			return nil, err
 		}

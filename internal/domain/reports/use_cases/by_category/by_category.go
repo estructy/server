@@ -56,32 +56,24 @@ func (uc *ReportBycategoryUseCase) Execute(accountID uuid.UUID, request *bycateg
 		transactions = transactionRows
 	}
 
-	var response *bycategoryresponse.Response
-	if request.WithSubCategories {
-		reportyByCategory, err := uc.repository.GetReportByCategoriesWithParentCategory(ctx, repository.GetReportByCategoriesWithParentCategoryParams{
-			AccountID: &accountID,
-			Type:      request.Type,
-			From:      fromDate,
-			To:        toDate,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrFailedToGetReport, err)
-		}
-
-		response = bycategoryresponse.NewResponseWithSubCategories(request.From, request.To, request.Type, reportyByCategory, transactions)
-	} else {
-		reportyByCategory, err := uc.repository.GetReportByCategories(ctx, repository.GetReportByCategoriesParams{
-			AccountID: &accountID,
-			Type:      request.Type,
-			From:      fromDate,
-			To:        toDate,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrFailedToGetReport, err)
-		}
-
-		response = bycategoryresponse.NewResponse(request.From, request.To, request.Type, reportyByCategory, transactions)
+	reportyByCategory, err := uc.repository.GetReportByCategories(ctx, repository.GetReportByCategoriesParams{
+		AccountID: &accountID,
+		Type:      request.Type,
+		From:      fromDate,
+		To:        toDate,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrFailedToGetReport, err)
 	}
+
+	response := bycategoryresponse.NewResponse(
+		request.From,
+		request.To,
+		request.Type,
+		request.WithSubCategories,
+		reportyByCategory,
+		transactions,
+	)
 
 	return response, nil
 }
