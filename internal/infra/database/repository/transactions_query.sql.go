@@ -15,64 +15,64 @@ import (
 const createTransaction = `-- name: CreateTransaction :exec
 INSERT INTO transactions (
 	transaction_id,
-	transaction_code, 
+	code, 
 	account_id,
-	category_id, 
+	account_category_id, 
 	amount,
 	description, 
-	transaction_date
+	date
 ) VALUES (
 	$1, $2, $3, $4, $5, $6, $7
 )
 `
 
 type CreateTransactionParams struct {
-	TransactionID   uuid.UUID  `json:"transaction_id"`
-	TransactionCode string     `json:"transaction_code"`
-	AccountID       *uuid.UUID `json:"account_id"`
-	CategoryID      *uuid.UUID `json:"category_id"`
-	Amount          int32      `json:"amount"`
-	Description     *string    `json:"description"`
-	TransactionDate time.Time  `json:"transaction_date"`
+	TransactionID     uuid.UUID  `json:"transaction_id"`
+	Code              string     `json:"code"`
+	AccountID         *uuid.UUID `json:"account_id"`
+	AccountCategoryID *uuid.UUID `json:"account_category_id"`
+	Amount            int32      `json:"amount"`
+	Description       *string    `json:"description"`
+	Date              time.Time  `json:"date"`
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) error {
 	_, err := q.db.Exec(ctx, createTransaction,
 		arg.TransactionID,
-		arg.TransactionCode,
+		arg.Code,
 		arg.AccountID,
-		arg.CategoryID,
+		arg.AccountCategoryID,
 		arg.Amount,
 		arg.Description,
-		arg.TransactionDate,
+		arg.Date,
 	)
 	return err
 }
 
 const findLastTransactionCode = `-- name: FindLastTransactionCode :one
-SELECT transaction_code FROM transactions WHERE account_id = $1 ORDER BY transaction_code DESC LIMIT 1
+SELECT code FROM transactions WHERE account_id = $1 ORDER BY code DESC LIMIT 1
 `
 
 func (q *Queries) FindLastTransactionCode(ctx context.Context, accountID *uuid.UUID) (string, error) {
 	row := q.db.QueryRow(ctx, findLastTransactionCode, accountID)
-	var transaction_code string
-	err := row.Scan(&transaction_code)
-	return transaction_code, err
+	var code string
+	err := row.Scan(&code)
+	return code, err
 }
 
 const findTransactionById = `-- name: FindTransactionById :one
 SELECT 
-	t.transaction_code, 
+	t.code as transaction_code, 
 	ac.category_code AS category_code,
 	c.name AS category_name,
 	c.type AS category_type,
-	t.transaction_date,
+	t.date as transaction_date,
 	t.amount, 
 	t.description, 
 	t.created_at
 FROM transactions t
 LEFT JOIN account_categories ac ON 
-	t.category_id = ac.category_id
+	t.account_category_id = ac.account_category_id
 LEFT JOIN categories c ON 
 	ac.category_id = c.category_id
 WHERE transaction_id = $1
@@ -110,17 +110,17 @@ SELECT
 	c.name,
   t.amount, 
 	t.description, 
-	t.transaction_date 
+	t.date as transaction_date 
 FROM transactions t
-LEFT JOIN account_categories ac ON ac.account_category_id = t.category_id
+LEFT JOIN account_categories ac ON ac.account_category_id = t.account_category_id
 LEFT JOIN categories c ON c.category_id = ac.category_id
 WHERE 
 	t.account_id = $1
 	AND c.type = $2
-	AND t.transaction_date BETWEEN $3 AND $4
+	AND t.date BETWEEN $3 AND $4
 ORDER BY 
     c.name ASC,
-    t.transaction_date ASC
+    t.date ASC
 `
 
 type FindTransactionsByTypeParams struct {

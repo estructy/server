@@ -16,7 +16,7 @@ var (
 	ErrFailedToCreateTransaction = fmt.Errorf("failed to create transaction")
 	ErrCategoryNotFound          = fmt.Errorf("category not found")
 
-	initialTransactionCode = "TR-000"
+	initialCode = "TR-000"
 )
 
 type CreateTransactionUseCase struct {
@@ -32,21 +32,21 @@ func NewCreateTransactionUseCase(repository *repository.Queries) *CreateTransact
 func (uc *CreateTransactionUseCase) Execute(accountID uuid.UUID, request createtransactionrequest.Request) error {
 	ctx := context.Background()
 
-	transactionCode, err := uc.repository.FindLastTransactionCode(ctx, &accountID)
+	code, err := uc.repository.FindLastTransactionCode(ctx, &accountID)
 	if err != nil {
 		if err.Error() != "no rows in result set" {
 			return fmt.Errorf("%w: %s", ErrFailedToCreateTransaction, err.Error())
 		}
 
-		transactionCode = initialTransactionCode
+		code = initialCode
 	}
 
-	newTransactionCode := helpers.IncrementCode(transactionCode)
+	newCode := helpers.IncrementCode(code)
 	transactionID, err := uuid.NewV7()
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrFailedToCreateTransaction, err.Error())
 	}
-	transactionDate, err := time.Parse("2006-01-02", request.TransactionDate)
+	date, err := time.Parse("2006-01-02", request.Date)
 	if err != nil {
 		return fmt.Errorf("invalid transaction date format: %w", err)
 	}
@@ -63,13 +63,13 @@ func (uc *CreateTransactionUseCase) Execute(accountID uuid.UUID, request createt
 	}
 
 	err = uc.repository.CreateTransaction(ctx, repository.CreateTransactionParams{
-		TransactionID:   transactionID,
-		TransactionCode: newTransactionCode,
-		AccountID:       &accountID,
-		CategoryID:      &category.AccountCategoryID,
-		Amount:          int32(request.Amount),
-		Description:     &request.Description,
-		TransactionDate: transactionDate,
+		TransactionID:     transactionID,
+		Code:              newCode,
+		AccountID:         &accountID,
+		AccountCategoryID: &category.AccountCategoryID,
+		Amount:            int32(request.Amount),
+		Description:       &request.Description,
+		Date:              date,
 	})
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrFailedToCreateTransaction, err.Error())

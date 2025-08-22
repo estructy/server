@@ -16,6 +16,8 @@ var (
 	ErrFailedToCreateCategory = fmt.Errorf("failed to create category")
 	ErrCategoryAlreadyExists  = fmt.Errorf("category already exists")
 	ErrParentCategoryNotFound = fmt.Errorf("parent category not found")
+
+	initialCategoryCode = "AC-00"
 )
 
 type CreateCategoryUseCase struct {
@@ -52,12 +54,16 @@ func (uc *CreateCategoryUseCase) Execute(accountID uuid.UUID, request *createcat
 	}
 
 	// @todo: due to race conditions, could implement a retry mechanism here
-	lastCategoryCode, err := qtx.FindLastAccountCategoryCode(ctx, &accountID)
+	categoryCode, err := qtx.FindLastAccountCategoryCode(ctx, &accountID)
 	if err != nil {
-		return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())
+		if err.Error() != "no rows in result set" {
+			return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())
+		}
+
+		categoryCode = &initialCategoryCode
 	}
 
-	newCategoryCode := helpers.IncrementCode(*lastCategoryCode)
+	newCategoryCode := helpers.IncrementCode(*categoryCode)
 	newUUID, err := uuid.NewV7()
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrFailedToCreateCategory, err.Error())

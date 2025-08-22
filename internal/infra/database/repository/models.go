@@ -48,16 +48,16 @@ type Category struct {
 }
 
 type Transaction struct {
-	TransactionID   uuid.UUID        `json:"transaction_id"`
-	TransactionCode string           `json:"transaction_code"`
-	AccountID       *uuid.UUID       `json:"account_id"`
-	CategoryID      *uuid.UUID       `json:"category_id"`
-	Amount          int32            `json:"amount"`
-	Description     *string          `json:"description"`
-	TransactionDate time.Time        `json:"transaction_date"`
-	Version         *int32           `json:"version"`
-	CreatedAt       time.Time        `json:"created_at"`
-	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
+	TransactionID     uuid.UUID        `json:"transaction_id"`
+	Code              string           `json:"code"`
+	AccountID         *uuid.UUID       `json:"account_id"`
+	AccountCategoryID *uuid.UUID       `json:"account_category_id"`
+	Amount            int32            `json:"amount"`
+	Description       *string          `json:"description"`
+	Date              time.Time        `json:"date"`
+	Version           *int32           `json:"version"`
+	CreatedAt         time.Time        `json:"created_at"`
+	DeletedAt         pgtype.Timestamp `json:"deleted_at"`
 }
 
 type User struct {
