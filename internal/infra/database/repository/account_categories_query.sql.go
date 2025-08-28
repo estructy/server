@@ -20,6 +20,50 @@ type AddAccountCategoriesParams struct {
 	Color             *string    `json:"color"`
 }
 
+const findAccountCategoriesByAccountID = `-- name: FindAccountCategoriesByAccountID :many
+SELECT 
+	ac.category_code, 
+	c.name, 
+	c.type
+FROM account_categories ac
+LEFT JOIN categories c ON ac.category_id = c.category_id
+WHERE 
+	account_id = $1 
+	AND c.type = COALESCE(NULLIF($2::text, ''), c.type)
+ORDER BY category_code
+`
+
+type FindAccountCategoriesByAccountIDParams struct {
+	AccountID *uuid.UUID `json:"account_id"`
+	Type      *string    `json:"type"`
+}
+
+type FindAccountCategoriesByAccountIDRow struct {
+	CategoryCode *string `json:"category_code"`
+	Name         *string `json:"name"`
+	Type         *string `json:"type"`
+}
+
+func (q *Queries) FindAccountCategoriesByAccountID(ctx context.Context, arg FindAccountCategoriesByAccountIDParams) ([]FindAccountCategoriesByAccountIDRow, error) {
+	rows, err := q.db.Query(ctx, findAccountCategoriesByAccountID, arg.AccountID, arg.Type)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindAccountCategoriesByAccountIDRow
+	for rows.Next() {
+		var i FindAccountCategoriesByAccountIDRow
+		if err := rows.Scan(&i.CategoryCode, &i.Name, &i.Type); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findAccountCategoryByCode = `-- name: FindAccountCategoryByCode :one
 SELECT account_category_id, category_code, parent_id, account_id, category_id, color FROM account_categories WHERE account_id = $1 AND category_code = $2
 `

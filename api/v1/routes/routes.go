@@ -35,6 +35,7 @@ func categories(router *http.ServeMux, middlewares *middleswares.MiddlewareOrche
 	categoriesHandler := categorieshandler.NewCategoriesHandler(db, repository)
 
 	router.HandleFunc("POST /categories", middlewares.Chain(categoriesHandler.CreateCategory, middlewares.Logger, middlewares.Account))
+	router.HandleFunc("GET /categories", middlewares.Chain(categoriesHandler.ListCategories, middlewares.Logger, middlewares.Account))
 }
 
 func transactions(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {

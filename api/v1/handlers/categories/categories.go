@@ -9,6 +9,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	createcategory "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category"
 	createcategoryrequest "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category/request"
+	listcategories "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/list_categories"
+	listcategoriesrequest "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/list_categories/request"
 	contexthelper "github.com/nahtann/controlriver.com/internal/helpers/context"
 	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
 	requesthelper "github.com/nahtann/controlriver.com/internal/helpers/request"
@@ -60,4 +62,38 @@ func (h *CategoriesHandler) CreateCategory(w http.ResponseWriter, r *http.Reques
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Category created successfully"))
+}
+
+func (h *CategoriesHandler) ListCategories(w http.ResponseWriter, r *http.Request) {
+	accountID, ok := contexthelper.AccountIDFromContext(r.Context())
+	if !ok {
+		http.Error(w, "Account ID not found in context", http.StatusInternalServerError)
+		return
+	}
+
+	categoriesType := r.URL.Query().Get("type")
+
+	request := &listcategoriesrequest.Request{}
+
+	if categoriesType != "" {
+		request.Type = categoriesType
+
+		errorMessages := requesthelper.ValidateRequest(request)
+		if errorMessages != "" {
+			jsonhelper.HTTPError(w, http.StatusBadRequest, errorMessages)
+			return
+		}
+	}
+
+	listCategoriesUseCase := listcategories.NewListCategoriesUseCase(h.repository)
+	categories, err := listCategoriesUseCase.Execute(&accountID, request)
+	if err != nil {
+		errMappings := map[error]jsonhelper.ErrorMappings{
+			listcategories.ErrFailedToListCategories: {Code: http.StatusInternalServerError, Message: "Failed to list categories"},
+		}
+		jsonhelper.HandleError(w, err, errMappings)
+		return
+	}
+
+	jsonhelper.HTTPResponse(w, http.StatusOK, categories)
 }
