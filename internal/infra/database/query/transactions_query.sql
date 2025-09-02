@@ -9,9 +9,10 @@ INSERT INTO transactions (
 	account_category_id, 
 	amount,
 	description, 
-	date
+	date,
+	added_by
 ) VALUES (
-	$1, $2, $3, $4, $5, $6, $7
+	$1, $2, $3, $4, $5, $6, $7, $8
 ); 
 
 -- name: FindTransactionById :one

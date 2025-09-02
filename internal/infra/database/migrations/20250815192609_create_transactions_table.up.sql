@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   description TEXT,
   date DATE NOT NULL,
   version INT DEFAULT 1,
+	added_by UUID REFERENCES users(user_id) ON DELETE SET NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT (current_timestamp AT TIME ZONE 'UTC'),
   deleted_at TIMESTAMP DEFAULT NULL,
 	CHECK (code ~ '^TR-[0-9]+$')

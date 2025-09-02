@@ -29,7 +29,7 @@ func NewCreateTransactionUseCase(repository *repository.Queries) *CreateTransact
 	}
 }
 
-func (uc *CreateTransactionUseCase) Execute(accountID uuid.UUID, request createtransactionrequest.Request) error {
+func (uc *CreateTransactionUseCase) Execute(userID, accountID uuid.UUID, request createtransactionrequest.Request) error {
 	ctx := context.Background()
 
 	code, err := uc.repository.FindLastTransactionCode(ctx, &accountID)
@@ -70,6 +70,7 @@ func (uc *CreateTransactionUseCase) Execute(accountID uuid.UUID, request createt
 		Amount:            int32(request.Amount),
 		Description:       &request.Description,
 		Date:              date,
+		AddedBy:           &userID,
 	})
 	if err != nil {
 		return fmt.Errorf("%w: %s", ErrFailedToCreateTransaction, err.Error())

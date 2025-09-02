@@ -41,7 +41,7 @@ func categories(router *http.ServeMux, middlewares *middleswares.MiddlewareOrche
 func transactions(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {
 	transactionsHandler := transactionshandler.NewTransactionsHandler(repository)
 
-	router.HandleFunc("POST /transactions", middlewares.Chain(transactionsHandler.CreateTransaction, middlewares.Logger, middlewares.Account))
+	router.HandleFunc("POST /transactions", middlewares.Chain(transactionsHandler.CreateTransaction, middlewares.Logger, middlewares.Auth, middlewares.Account))
 }
 
 func reports(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {

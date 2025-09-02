@@ -56,6 +56,7 @@ type Transaction struct {
 	Description       *string          `json:"description"`
 	Date              time.Time        `json:"date"`
 	Version           *int32           `json:"version"`
+	AddedBy           *uuid.UUID       `json:"added_by"`
 	CreatedAt         time.Time        `json:"created_at"`
 	DeletedAt         pgtype.Timestamp `json:"deleted_at"`
 }

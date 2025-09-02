@@ -25,6 +25,12 @@ func NewTransactionsHandler(repository *repository.Queries) *TransactionsHandler
 }
 
 func (uc *TransactionsHandler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
+	userID, ok := contexthelper.UserIDFromContext(r.Context())
+	if !ok {
+		http.Error(w, "User ID not found in context", http.StatusBadRequest)
+		return
+	}
+
 	accountID, ok := contexthelper.AccountIDFromContext(r.Context())
 	if !ok {
 		http.Error(w, "Account ID not found in context", http.StatusInternalServerError)
@@ -44,7 +50,7 @@ func (uc *TransactionsHandler) CreateTransaction(w http.ResponseWriter, r *http.
 	}
 
 	createTransactionUseCase := createtransaction.NewCreateTransactionUseCase(uc.repository)
-	err := createTransactionUseCase.Execute(accountID, request)
+	err := createTransactionUseCase.Execute(userID, accountID, request)
 	if err != nil {
 		errMappings := map[error]jsonhelper.ErrorMappings{
 			createtransaction.ErrFailedToCreateTransaction: {

@@ -20,9 +20,10 @@ INSERT INTO transactions (
 	account_category_id, 
 	amount,
 	description, 
-	date
+	date,
+	added_by
 ) VALUES (
-	$1, $2, $3, $4, $5, $6, $7
+	$1, $2, $3, $4, $5, $6, $7, $8
 )
 `
 
@@ -34,6 +35,7 @@ type CreateTransactionParams struct {
 	Amount            int32      `json:"amount"`
 	Description       *string    `json:"description"`
 	Date              time.Time  `json:"date"`
+	AddedBy           *uuid.UUID `json:"added_by"`
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) error {
@@ -45,6 +47,7 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 		arg.Amount,
 		arg.Description,
 		arg.Date,
+		arg.AddedBy,
 	)
 	return err
 }
