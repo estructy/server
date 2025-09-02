@@ -108,6 +108,90 @@ func (q *Queries) FindTransactionById(ctx context.Context, transactionID uuid.UU
 	return i, err
 }
 
+const findTransactions = `-- name: FindTransactions :many
+SELECT 
+	t.code as transaction_code, 
+	ac.category_code AS category_code,
+	c.name AS category_name,
+	c.type AS category_type,
+	t.date as transaction_date,
+	t.amount, 
+	t.description,
+	u.name as added_by,
+	t.created_at 
+FROM transactions t 
+LEFT JOIN account_categories ac ON 
+	t.account_category_id = ac.account_category_id 
+LEFT JOIN categories c ON 
+	ac.category_id = c.category_id 
+LEFT JOIN users u ON u.user_id = t.added_by 
+WHERE 
+	t.account_id = $1
+		AND t.deleted_at IS NULL
+		AND c.type = COALESCE(NULLIF($2::text, ''), c.type)
+		AND (t.added_by = $3 OR $3 IS NULL)
+		AND (t.date BETWEEN $4 AND $5 OR ($4 IS NULL AND $5 IS NULL))
+ORDER BY 
+		c.name ASC,
+		t.date DESC
+`
+
+type FindTransactionsParams struct {
+	AccountID *uuid.UUID `json:"account_id"`
+	Type      *string    `json:"type"`
+	AddedBy   *uuid.UUID `json:"added_by"`
+	From      time.Time  `json:"from"`
+	To        time.Time  `json:"to"`
+}
+
+type FindTransactionsRow struct {
+	TransactionCode string    `json:"transaction_code"`
+	CategoryCode    *string   `json:"category_code"`
+	CategoryName    *string   `json:"category_name"`
+	CategoryType    *string   `json:"category_type"`
+	TransactionDate time.Time `json:"transaction_date"`
+	Amount          int32     `json:"amount"`
+	Description     *string   `json:"description"`
+	AddedBy         *string   `json:"added_by"`
+	CreatedAt       time.Time `json:"created_at"`
+}
+
+func (q *Queries) FindTransactions(ctx context.Context, arg FindTransactionsParams) ([]FindTransactionsRow, error) {
+	rows, err := q.db.Query(ctx, findTransactions,
+		arg.AccountID,
+		arg.Type,
+		arg.AddedBy,
+		arg.From,
+		arg.To,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindTransactionsRow
+	for rows.Next() {
+		var i FindTransactionsRow
+		if err := rows.Scan(
+			&i.TransactionCode,
+			&i.CategoryCode,
+			&i.CategoryName,
+			&i.CategoryType,
+			&i.TransactionDate,
+			&i.Amount,
+			&i.Description,
+			&i.AddedBy,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findTransactionsByType = `-- name: FindTransactionsByType :many
 SELECT 
 	c.name,

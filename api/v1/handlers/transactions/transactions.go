@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	createtransaction "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/create_transaction"
 	createtransactionrequest "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/create_transaction/request/create_transaction_request"
+	listtransactions "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/list_transactions"
+	listtransactionsrequest "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/list_transactions/request"
 	contexthelper "github.com/nahtann/controlriver.com/internal/helpers/context"
 	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
 	requesthelper "github.com/nahtann/controlriver.com/internal/helpers/request"
@@ -68,4 +71,56 @@ func (uc *TransactionsHandler) CreateTransaction(w http.ResponseWriter, r *http.
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Transaction created successfully"))
+}
+
+func (uc *TransactionsHandler) ListTransactions(w http.ResponseWriter, r *http.Request) {
+	accountID, ok := contexthelper.AccountIDFromContext(r.Context())
+	if !ok {
+		http.Error(w, "Account ID not found in context", http.StatusInternalServerError)
+		return
+	}
+
+	transactionType := r.URL.Query().Get("type")
+	addedByRaw := r.URL.Query().Get("added_by")
+	from := r.URL.Query().Get("from")
+	to := r.URL.Query().Get("to")
+
+	addedBy, err := uuid.Parse(addedByRaw)
+	if addedByRaw != "" && err != nil {
+		http.Error(w, "Invalid added_by UUID", http.StatusBadRequest)
+		return
+	}
+
+	request := &listtransactionsrequest.Request{
+		AccountID: accountID,
+		Type:      transactionType,
+		AddedBy:   addedBy,
+		From:      from,
+		To:        to,
+	}
+
+	errorMessages := requesthelper.ValidateRequest(request)
+	if errorMessages != "" {
+		jsonhelper.HTTPError(w, http.StatusBadRequest, errorMessages)
+		return
+	}
+
+	if request.Type == "all" {
+		request.Type = ""
+	}
+
+	listTransactionsUseCase := listtransactions.NewListTransactionsUseCase(uc.repository)
+	response, err := listTransactionsUseCase.Execute(request)
+	if err != nil {
+		errMappings := map[error]jsonhelper.ErrorMappings{
+			createtransaction.ErrFailedToCreateTransaction: {
+				Code:    http.StatusInternalServerError,
+				Message: "Failed to list transactions",
+			},
+		}
+		jsonhelper.HandleError(w, err, errMappings)
+		return
+	}
+
+	jsonhelper.HTTPResponse(w, http.StatusOK, response)
 }

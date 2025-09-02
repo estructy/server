@@ -42,6 +42,7 @@ func transactions(router *http.ServeMux, middlewares *middleswares.MiddlewareOrc
 	transactionsHandler := transactionshandler.NewTransactionsHandler(repository)
 
 	router.HandleFunc("POST /transactions", middlewares.Chain(transactionsHandler.CreateTransaction, middlewares.Logger, middlewares.Auth, middlewares.Account))
+	router.HandleFunc("GET /transactions", middlewares.Chain(transactionsHandler.ListTransactions, middlewares.Logger, middlewares.Account))
 }
 
 func reports(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {
