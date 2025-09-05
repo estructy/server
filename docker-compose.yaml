@@ -18,8 +18,8 @@ services:
       timeout: 5s
       retries: 5
 
-  controlriver-central-server:
-    container_name: controlriver-central-server
+  controlriver-server:
+    container_name: controlriver-server
     build: .
     depends_on:
       controlriver-database:
