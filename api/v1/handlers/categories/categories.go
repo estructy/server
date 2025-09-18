@@ -72,18 +72,24 @@ func (h *CategoriesHandler) ListCategories(w http.ResponseWriter, r *http.Reques
 	}
 
 	categoriesType := r.URL.Query().Get("type")
+	subCategories := r.URL.Query().Get("without-parent")
 
 	request := &listcategoriesrequest.Request{}
 
 	if categoriesType != "" {
 		request.Type = categoriesType
-
-		errorMessages := requesthelper.ValidateRequest(request)
-		if errorMessages != "" {
-			jsonhelper.HTTPError(w, http.StatusBadRequest, errorMessages)
-			return
-		}
 	}
+	if subCategories != "" && subCategories == "true" {
+		request.WitoutParent = true
+	} else {
+		request.WitoutParent = false
+	}
+
+	// errorMessages := requesthelper.ValidateRequest(request)
+	// if errorMessages != "" {
+	// 	jsonhelper.HTTPError(w, http.StatusBadRequest, errorMessages)
+	// 	return
+	// }
 
 	listCategoriesUseCase := listcategories.NewListCategoriesUseCase(h.repository)
 	categories, err := listCategoriesUseCase.Execute(&accountID, request)

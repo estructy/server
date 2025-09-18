@@ -24,28 +24,35 @@ const findAccountCategoriesByAccountID = `-- name: FindAccountCategoriesByAccoun
 SELECT 
 	ac.category_code, 
 	c.name, 
-	c.type
+	c.type,
+	ac.color
 FROM account_categories ac
 LEFT JOIN categories c ON ac.category_id = c.category_id
 WHERE 
 	account_id = $1 
 	AND c.type = COALESCE(NULLIF($2::text, ''), c.type)
+	AND (
+		NOT $3::boolean
+		OR ac.parent_id IS NULL
+	)
 ORDER BY category_code
 `
 
 type FindAccountCategoriesByAccountIDParams struct {
-	AccountID *uuid.UUID `json:"account_id"`
-	Type      *string    `json:"type"`
+	AccountID     *uuid.UUID `json:"account_id"`
+	Type          *string    `json:"type"`
+	WithoutParent *bool      `json:"without_parent"`
 }
 
 type FindAccountCategoriesByAccountIDRow struct {
 	CategoryCode *string `json:"category_code"`
 	Name         *string `json:"name"`
 	Type         *string `json:"type"`
+	Color        *string `json:"color"`
 }
 
 func (q *Queries) FindAccountCategoriesByAccountID(ctx context.Context, arg FindAccountCategoriesByAccountIDParams) ([]FindAccountCategoriesByAccountIDRow, error) {
-	rows, err := q.db.Query(ctx, findAccountCategoriesByAccountID, arg.AccountID, arg.Type)
+	rows, err := q.db.Query(ctx, findAccountCategoriesByAccountID, arg.AccountID, arg.Type, arg.WithoutParent)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +60,12 @@ func (q *Queries) FindAccountCategoriesByAccountID(ctx context.Context, arg Find
 	var items []FindAccountCategoriesByAccountIDRow
 	for rows.Next() {
 		var i FindAccountCategoriesByAccountIDRow
-		if err := rows.Scan(&i.CategoryCode, &i.Name, &i.Type); err != nil {
+		if err := rows.Scan(
+			&i.CategoryCode,
+			&i.Name,
+			&i.Type,
+			&i.Color,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

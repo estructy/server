@@ -26,8 +26,9 @@ func (uc *ListCategoriesUseCase) Execute(accountID *uuid.UUID, request *listcate
 	ctx := context.Background()
 
 	accountCategories, err := uc.repository.FindAccountCategoriesByAccountID(ctx, repository.FindAccountCategoriesByAccountIDParams{
-		AccountID: accountID,
-		Type:      &request.Type,
+		AccountID:     accountID,
+		Type:          &request.Type,
+		WithoutParent: &request.WitoutParent,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrFailedToListCategories, err)

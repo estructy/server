@@ -19,10 +19,15 @@ SELECT * FROM account_categories WHERE account_id = $1 AND category_code = $2;
 SELECT 
 	ac.category_code, 
 	c.name, 
-	c.type
+	c.type,
+	ac.color
 FROM account_categories ac
 LEFT JOIN categories c ON ac.category_id = c.category_id
 WHERE 
 	account_id = $1 
 	AND c.type = COALESCE(NULLIF(sqlc.narg('type')::text, ''), c.type)
+	AND (
+		NOT sqlc.narg('without_parent')::boolean
+		OR ac.parent_id IS NULL
+	)
 ORDER BY category_code;
