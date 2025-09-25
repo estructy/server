@@ -40,6 +40,7 @@ func NewResponse(from, to, categoryType string, transactions []repository.FindTr
 	}
 
 	for _, t := range transactions {
+		formatedDate := t.TransactionDate.Format("2006-01-02")
 		response.Transactions = append(response.Transactions, Transaction{
 			TransactionCode: t.TransactionCode,
 			Category: Category{
@@ -47,7 +48,7 @@ func NewResponse(from, to, categoryType string, transactions []repository.FindTr
 				Name:         *t.CategoryName,
 				Type:         *t.CategoryType,
 			},
-			Date:        t.TransactionDate.String(),
+			Date:        formatedDate,
 			Amount:      uint(t.Amount),
 			Description: *t.Description,
 			AddedBy: User{
