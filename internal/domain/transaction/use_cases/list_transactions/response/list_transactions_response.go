@@ -1,7 +1,9 @@
 // Package listtransactionsresponse implements the response structure for listing transactions.
 package listtransactionsresponse
 
-import "github.com/nahtann/controlriver.com/internal/infra/database/repository"
+import (
+	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+)
 
 type User struct {
 	Name string `json:"name"`
@@ -11,6 +13,7 @@ type Category struct {
 	CategoryCode string `json:"category_code"`
 	Name         string `json:"name"`
 	Type         string `json:"type"`
+	Color        string `json:"color"`
 }
 
 type Transaction struct {
@@ -30,7 +33,9 @@ type Response struct {
 }
 
 func NewResponse(from, to, categoryType string, transactions []repository.FindTransactionsRow) *Response {
-	response := &Response{}
+	response := &Response{
+		Transactions: make([]Transaction, 0, len(transactions)),
+	}
 
 	response.From = from
 	response.To = to
@@ -47,6 +52,7 @@ func NewResponse(from, to, categoryType string, transactions []repository.FindTr
 				CategoryCode: *t.CategoryCode,
 				Name:         *t.CategoryName,
 				Type:         *t.CategoryType,
+				Color:        *t.CategoryColor,
 			},
 			Date:        formatedDate,
 			Amount:      uint(t.Amount),

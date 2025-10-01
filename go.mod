@@ -3,15 +3,16 @@ module github.com/nahtann/controlriver.com
 go 1.23.6
 
 require (
+	github.com/brianvoe/gofakeit/v7 v7.4.0
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.5.4
+	github.com/rs/cors v1.11.1
 	go.uber.org/zap v1.27.0
 )
 
 require (
-	github.com/brianvoe/gofakeit/v7 v7.4.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

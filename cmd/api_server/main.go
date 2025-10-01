@@ -12,6 +12,7 @@ import (
 	routesv1 "github.com/nahtann/controlriver.com/api/v1/routes"
 	"github.com/nahtann/controlriver.com/internal/helpers/migrations"
 	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	"github.com/rs/cors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -68,9 +69,15 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/api/v1/", http.StripPrefix("/api/v1", routerV1))
 
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "Authorization", "X-Account-ID"},
+	}).Handler(mux)
+
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: mux,
+		Handler: corsHandler,
 	}
 
 	log.Printf("Starting server on %s\n", server.Addr)

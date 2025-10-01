@@ -112,6 +112,7 @@ const findTransactions = `-- name: FindTransactions :many
 SELECT 
 	t.code as transaction_code, 
 	ac.category_code AS category_code,
+	ac.color as category_color,
 	c.name AS category_name,
 	c.type AS category_type,
 	t.date as transaction_date,
@@ -147,6 +148,7 @@ type FindTransactionsParams struct {
 type FindTransactionsRow struct {
 	TransactionCode string    `json:"transaction_code"`
 	CategoryCode    *string   `json:"category_code"`
+	CategoryColor   *string   `json:"category_color"`
 	CategoryName    *string   `json:"category_name"`
 	CategoryType    *string   `json:"category_type"`
 	TransactionDate time.Time `json:"transaction_date"`
@@ -174,6 +176,7 @@ func (q *Queries) FindTransactions(ctx context.Context, arg FindTransactionsPara
 		if err := rows.Scan(
 			&i.TransactionCode,
 			&i.CategoryCode,
+			&i.CategoryColor,
 			&i.CategoryName,
 			&i.CategoryType,
 			&i.TransactionDate,

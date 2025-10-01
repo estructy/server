@@ -53,6 +53,7 @@ ORDER BY
 SELECT 
 	t.code as transaction_code, 
 	ac.category_code AS category_code,
+	ac.color as category_color,
 	c.name AS category_name,
 	c.type AS category_type,
 	t.date as transaction_date,
