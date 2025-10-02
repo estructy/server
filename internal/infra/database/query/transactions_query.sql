@@ -73,6 +73,7 @@ WHERE
 		AND c.type = COALESCE(NULLIF(sqlc.narg('type')::text, ''), c.type)
 		AND (t.added_by = sqlc.arg('added_by') OR sqlc.arg('added_by') IS NULL)
 		AND (t.date BETWEEN sqlc.arg('from') AND sqlc.arg('to') OR (sqlc.arg('from') IS NULL AND sqlc.arg('to') IS NULL))
+		AND (ac.category_code IN (SELECT unnest(sqlc.narg('categories')::text[])) OR sqlc.arg('categories') IS NULL)
 ORDER BY 
 		c.name ASC,
 		t.date DESC;

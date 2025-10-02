@@ -132,17 +132,19 @@ WHERE
 		AND c.type = COALESCE(NULLIF($2::text, ''), c.type)
 		AND (t.added_by = $3 OR $3 IS NULL)
 		AND (t.date BETWEEN $4 AND $5 OR ($4 IS NULL AND $5 IS NULL))
+		AND (ac.category_code IN (SELECT unnest($6::text[])) OR $6 IS NULL)
 ORDER BY 
 		c.name ASC,
 		t.date DESC
 `
 
 type FindTransactionsParams struct {
-	AccountID *uuid.UUID `json:"account_id"`
-	Type      *string    `json:"type"`
-	AddedBy   *uuid.UUID `json:"added_by"`
-	From      time.Time  `json:"from"`
-	To        time.Time  `json:"to"`
+	AccountID  *uuid.UUID `json:"account_id"`
+	Type       *string    `json:"type"`
+	AddedBy    *uuid.UUID `json:"added_by"`
+	From       time.Time  `json:"from"`
+	To         time.Time  `json:"to"`
+	Categories []string   `json:"categories"`
 }
 
 type FindTransactionsRow struct {
@@ -165,6 +167,7 @@ func (q *Queries) FindTransactions(ctx context.Context, arg FindTransactionsPara
 		arg.AddedBy,
 		arg.From,
 		arg.To,
+		arg.Categories,
 	)
 	if err != nil {
 		return nil, err

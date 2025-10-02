@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	createtransaction "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/create_transaction"
@@ -84,6 +85,13 @@ func (uc *TransactionsHandler) ListTransactions(w http.ResponseWriter, r *http.R
 	addedByRaw := r.URL.Query().Get("added_by")
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
+	categoriesRaw := r.URL.Query().Get("categories")
+
+	var categories []string
+
+	if categoriesRaw != "" {
+		categories = strings.Split(categoriesRaw, ",")
+	}
 
 	addedBy, err := uuid.Parse(addedByRaw)
 	if addedByRaw != "" && err != nil {
@@ -92,11 +100,12 @@ func (uc *TransactionsHandler) ListTransactions(w http.ResponseWriter, r *http.R
 	}
 
 	request := &listtransactionsrequest.Request{
-		AccountID: accountID,
-		Type:      transactionType,
-		AddedBy:   addedBy,
-		From:      from,
-		To:        to,
+		AccountID:  accountID,
+		Type:       transactionType,
+		AddedBy:    addedBy,
+		From:       from,
+		To:         to,
+		Categories: categories,
 	}
 
 	errorMessages := requesthelper.ValidateRequest(request)

@@ -36,10 +36,11 @@ func (uc *ListTransactionsUseCase) Execute(request *listtransactionsrequest.Requ
 
 	ctx := context.Background()
 	transactions, err := uc.repository.FindTransactions(ctx, repository.FindTransactionsParams{
-		AccountID: &request.AccountID,
-		From:      fromDate,
-		To:        toDate,
-		Type:      &request.Type,
+		AccountID:  &request.AccountID,
+		From:       fromDate,
+		To:         toDate,
+		Type:       &request.Type,
+		Categories: request.Categories,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", ErrFailedToListTransactions, err)
