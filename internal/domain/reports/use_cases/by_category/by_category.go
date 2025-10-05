@@ -58,7 +58,7 @@ func (uc *ReportBycategoryUseCase) Execute(accountID uuid.UUID, request *bycateg
 
 	reportyByCategory, err := uc.repository.GetReportByCategories(ctx, repository.GetReportByCategoriesParams{
 		AccountID: &accountID,
-		Type:      request.Type,
+		Type:      &request.Type,
 		From:      fromDate,
 		To:        toDate,
 	})

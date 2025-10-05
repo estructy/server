@@ -16,7 +16,9 @@ const getReportByCategories = `-- name: GetReportByCategories :many
 SELECT
   coalesce(pc_c.name, c.name) AS parent,
   c.name,
-	sum(t.amount) AS total_spent
+	sum(t.amount) AS total_spent,
+	ac.color AS category_color,
+	c.type AS category_type
 FROM transactions t
 LEFT JOIN account_categories ac ON ac.account_category_id = t.account_category_id
 LEFT JOIN categories c ON c.category_id = ac.category_id
@@ -26,31 +28,33 @@ LEFT JOIN categories pc_c
     ON pc_c.category_id = pc.category_id
 WHERE
 	t.account_id = $1
-	AND c.type = $2
-  AND t.date BETWEEN $3 AND $4
-GROUP BY c.name, pc_c.name
+  AND t.date BETWEEN $2 AND $3
+	AND c.type = COALESCE(NULLIF($4::text, ''), c.type)
+GROUP BY c.name, pc_c.name, ac.color, c.type
 ORDER BY total_spent DESC
 `
 
 type GetReportByCategoriesParams struct {
 	AccountID *uuid.UUID `json:"account_id"`
-	Type      string     `json:"type"`
 	From      time.Time  `json:"from"`
 	To        time.Time  `json:"to"`
+	Type      *string    `json:"type"`
 }
 
 type GetReportByCategoriesRow struct {
-	Parent     string  `json:"parent"`
-	Name       *string `json:"name"`
-	TotalSpent int64   `json:"total_spent"`
+	Parent        string  `json:"parent"`
+	Name          *string `json:"name"`
+	TotalSpent    int64   `json:"total_spent"`
+	CategoryColor *string `json:"category_color"`
+	CategoryType  *string `json:"category_type"`
 }
 
 func (q *Queries) GetReportByCategories(ctx context.Context, arg GetReportByCategoriesParams) ([]GetReportByCategoriesRow, error) {
 	rows, err := q.db.Query(ctx, getReportByCategories,
 		arg.AccountID,
-		arg.Type,
 		arg.From,
 		arg.To,
+		arg.Type,
 	)
 	if err != nil {
 		return nil, err
@@ -59,7 +63,13 @@ func (q *Queries) GetReportByCategories(ctx context.Context, arg GetReportByCate
 	var items []GetReportByCategoriesRow
 	for rows.Next() {
 		var i GetReportByCategoriesRow
-		if err := rows.Scan(&i.Parent, &i.Name, &i.TotalSpent); err != nil {
+		if err := rows.Scan(
+			&i.Parent,
+			&i.Name,
+			&i.TotalSpent,
+			&i.CategoryColor,
+			&i.CategoryType,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

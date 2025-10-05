@@ -16,6 +16,8 @@ type Transactions struct {
 type Category struct {
 	Name         string         `json:"name"`
 	TotalSpent   uint64         `json:"total_spent"`
+	Color        *string        `json:"color,omitempty"`
+	Type         *string        `json:"type,omitempty"`
 	Transactions []Transactions `json:"transactions,omitempty"`
 	SubCategory  []Category     `json:"sub_category,omitempty"`
 }
@@ -36,7 +38,12 @@ func NewResponse(
 	response := &Response{
 		From: from,
 		To:   to,
-		Type: reportType,
+	}
+
+	if reportType != "" {
+		response.Type = reportType
+	} else {
+		response.Type = "all"
 	}
 
 	var categories []Category
@@ -49,6 +56,8 @@ func NewResponse(
 		category := Category{
 			Name:        *row.Name,
 			TotalSpent:  uint64(row.TotalSpent),
+			Color:       row.CategoryColor,
+			Type:        row.CategoryType,
 			SubCategory: []Category{},
 		}
 

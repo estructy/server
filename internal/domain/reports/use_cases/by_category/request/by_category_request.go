@@ -2,7 +2,7 @@
 package bycategoryrequest
 
 type Request struct {
-	Type              string `json:"type" validate:"required,oneof=income expense"`
+	Type              string `json:"type"`
 	From              string `json:"from" validate:"required,datetime=2006-01-02"`
 	To                string `json:"to" validate:"required,datetime=2006-01-02,gtefield=From"`
 	WithSubCategories bool   `json:"with_sub_categories" validate:"omitempty,boolean"`
