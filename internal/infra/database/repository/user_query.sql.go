@@ -12,26 +12,37 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (user_id, name, email) VALUES ($1, $2, $3) RETURNING user_id, name, email
+INSERT INTO users (user_id, auth_id, name, email) VALUES ($1, $2, $3, $4) RETURNING user_id
 `
 
 type CreateUserParams struct {
 	UserID uuid.UUID `json:"user_id"`
+	AuthID string    `json:"auth_id"`
 	Name   string    `json:"name"`
 	Email  string    `json:"email"`
 }
 
-type CreateUserRow struct {
-	UserID uuid.UUID `json:"user_id"`
-	Name   string    `json:"name"`
-	Email  string    `json:"email"`
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, createUser,
+		arg.UserID,
+		arg.AuthID,
+		arg.Name,
+		arg.Email,
+	)
+	var user_id uuid.UUID
+	err := row.Scan(&user_id)
+	return user_id, err
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.UserID, arg.Name, arg.Email)
-	var i CreateUserRow
-	err := row.Scan(&i.UserID, &i.Name, &i.Email)
-	return i, err
+const getUserByAuthID = `-- name: GetUserByAuthID :one
+SELECT user_id FROM users WHERE auth_id = $1
+`
+
+func (q *Queries) GetUserByAuthID(ctx context.Context, authID string) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, getUserByAuthID, authID)
+	var user_id uuid.UUID
+	err := row.Scan(&user_id)
+	return user_id, err
 }
 
 const userExistsByEmail = `-- name: UserExistsByEmail :one

@@ -5,10 +5,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
 	userrepository "github.com/estructy/server/internal/domain/user/repository"
 	createuserrequest "github.com/estructy/server/internal/domain/user/use_cases/create_user/request"
 	"github.com/estructy/server/internal/infra/database/repository"
+	"github.com/google/uuid"
 )
 
 var (

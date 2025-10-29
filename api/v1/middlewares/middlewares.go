@@ -7,6 +7,7 @@ import (
 	accountmiddleware "github.com/estructy/server/api/v1/middlewares/account"
 	authmiddleware "github.com/estructy/server/api/v1/middlewares/auth"
 	logger_middleware "github.com/estructy/server/api/v1/middlewares/logger"
+	"github.com/estructy/server/internal/infra/database/repository"
 	"go.uber.org/zap"
 )
 
@@ -18,9 +19,9 @@ type MiddlewareOrchestrator struct {
 	Account func(http.Handler) http.HandlerFunc
 }
 
-func NewMiddlewareOrchestration(logger *zap.Logger) *MiddlewareOrchestrator {
+func NewMiddlewareOrchestration(logger *zap.Logger, repo *repository.Queries) *MiddlewareOrchestrator {
 	loggerMiddleware := logger_middleware.NewLoggerMiddleware(logger)
-	authMiddleware := authmiddleware.NewAuthMiddleware()
+	authMiddleware := authmiddleware.NewAuthMiddleware(repo)
 	accountMiddleware := accountmiddleware.NewAccountMiddleware()
 
 	return &MiddlewareOrchestrator{

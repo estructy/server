@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	middleswares "github.com/estructy/server/api/v1/middlewares"
 	routesv1 "github.com/estructy/server/api/v1/routes"
 	"github.com/estructy/server/internal/helpers/migrations"
 	"github.com/estructy/server/internal/infra/database/repository"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/cors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -50,9 +50,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to parse DATABASE_URL: %v\n", err)
 	}
-	config.ConnConfig.Tracer = &myQueryTracer{
-		log: logger.WithOptions(zap.AddCallerSkip(1)),
-	}
+	// config.ConnConfig.Tracer = &myQueryTracer{
+	// 	log: logger.WithOptions(zap.AddCallerSkip(1)),
+	// }
 	dbpool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
@@ -62,7 +62,7 @@ func main() {
 	// ------
 
 	// --- Router setup ---
-	middlewareOrchestrator := middleswares.NewMiddlewareOrchestration(logger)
+	middlewareOrchestrator := middleswares.NewMiddlewareOrchestration(logger, repository)
 	routerV1 := routesv1.NewRouterV1(middlewareOrchestrator, dbpool, repository)
 	// ------
 

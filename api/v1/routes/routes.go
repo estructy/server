@@ -4,7 +4,6 @@ package routesv1
 import (
 	"net/http"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	accountshandler "github.com/estructy/server/api/v1/handlers/accounts"
 	categorieshandler "github.com/estructy/server/api/v1/handlers/categories"
 	healthhandler "github.com/estructy/server/api/v1/handlers/health"
@@ -13,6 +12,7 @@ import (
 	usershandler "github.com/estructy/server/api/v1/handlers/users"
 	middleswares "github.com/estructy/server/api/v1/middlewares"
 	"github.com/estructy/server/internal/infra/database/repository"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func health(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator) {
@@ -41,14 +41,29 @@ func categories(router *http.ServeMux, middlewares *middleswares.MiddlewareOrche
 func transactions(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {
 	transactionsHandler := transactionshandler.NewTransactionsHandler(repository)
 
-	router.HandleFunc("POST /transactions", middlewares.Chain(transactionsHandler.CreateTransaction, middlewares.Logger, middlewares.Auth, middlewares.Account))
-	router.HandleFunc("GET /transactions", middlewares.Chain(transactionsHandler.ListTransactions, middlewares.Logger, middlewares.Account))
+	router.HandleFunc("POST /transactions", middlewares.Chain(
+		transactionsHandler.CreateTransaction,
+		middlewares.Logger,
+		middlewares.Auth,
+		middlewares.Account,
+	))
+	router.HandleFunc("GET /transactions", middlewares.Chain(
+		transactionsHandler.ListTransactions,
+		middlewares.Logger,
+		middlewares.Auth,
+		middlewares.Account,
+	))
 }
 
 func reports(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {
 	reportsHandler := reportshandler.NewReportsHandler(repository)
 
-	router.HandleFunc("GET /reports/by-category", middlewares.Chain(reportsHandler.GetReportByCategory, middlewares.Logger, middlewares.Account))
+	router.HandleFunc("GET /reports/by-category", middlewares.Chain(
+		reportsHandler.GetReportByCategory,
+		middlewares.Logger,
+		middlewares.Auth,
+		middlewares.Account,
+	))
 }
 
 func NewRouterV1(middlewares *middleswares.MiddlewareOrchestrator, db *pgxpool.Pool, repository *repository.Queries) *http.ServeMux {

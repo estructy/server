@@ -5,9 +5,10 @@ import (
 	"context"
 
 	"github.com/estructy/server/internal/infra/database/repository"
+	"github.com/google/uuid"
 )
 
 type UserRepository interface {
-	CreateUser(context.Context, repository.CreateUserParams) (repository.CreateUserRow, error)
+	CreateUser(context.Context, repository.CreateUserParams) (uuid.UUID, error)
 	UserExistsByEmail(ctx context.Context, email string) (bool, error)
 }
