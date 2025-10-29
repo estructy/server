@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	createaccount "github.com/estructy/server/internal/domain/accounts/use_cases/create_account"
 	createaccountrequest "github.com/estructy/server/internal/domain/accounts/use_cases/create_account/request"
 	contexthelper "github.com/estructy/server/internal/helpers/context"
 	jsonhelper "github.com/estructy/server/internal/helpers/json"
 	"github.com/estructy/server/internal/infra/database/repository"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type AccountsHandler struct {

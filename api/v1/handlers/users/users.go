@@ -7,6 +7,7 @@ import (
 
 	createuser "github.com/estructy/server/internal/domain/user/use_cases/create_user"
 	createuserrequest "github.com/estructy/server/internal/domain/user/use_cases/create_user/request"
+	contexthelper "github.com/estructy/server/internal/helpers/context"
 	jsonhelper "github.com/estructy/server/internal/helpers/json"
 	requesthelper "github.com/estructy/server/internal/helpers/request"
 	"github.com/estructy/server/internal/infra/database/repository"
@@ -49,4 +50,20 @@ func (h *UsersHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *UsersHandler) FindUserLastAccessedAccount(w http.ResponseWriter, r *http.Request) {
+	userID, ok := contexthelper.UserIDFromContext(r.Context())
+	if !ok {
+		http.Error(w, "User ID not found in context", http.StatusBadRequest)
+		return
+	}
+
+	account, err := h.repository.FindUserLastAccessedAccount(r.Context(), userID)
+	if err != nil {
+		jsonhelper.HTTPError(w, http.StatusInternalServerError, "Failed to retrieve last accessed account")
+		return
+	}
+
+	jsonhelper.HTTPResponse(w, http.StatusOK, account)
 }

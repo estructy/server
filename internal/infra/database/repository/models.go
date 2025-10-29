@@ -62,9 +62,10 @@ type Transaction struct {
 }
 
 type User struct {
-	UserID    uuid.UUID `json:"user_id"`
-	AuthID    string    `json:"auth_id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	CreatedAt time.Time `json:"created_at"`
+	UserID              uuid.UUID  `json:"user_id"`
+	AuthID              string     `json:"auth_id"`
+	Name                string     `json:"name"`
+	Email               string     `json:"email"`
+	CreatedAt           time.Time  `json:"created_at"`
+	LastAccessedAccount *uuid.UUID `json:"last_accessed_account"`
 }

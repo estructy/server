@@ -8,3 +8,6 @@ SELECT EXISTS (
 
 -- name: GetUserByAuthID :one 
 SELECT user_id FROM users WHERE auth_id = $1;
+
+-- name: FindUserLastAccessedAccount :one 
+SELECT last_accessed_account FROM users WHERE user_id = $1;

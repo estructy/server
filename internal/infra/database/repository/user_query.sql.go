@@ -34,6 +34,17 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 	return user_id, err
 }
 
+const findUserLastAccessedAccount = `-- name: FindUserLastAccessedAccount :one
+SELECT last_accessed_account FROM users WHERE user_id = $1
+`
+
+func (q *Queries) FindUserLastAccessedAccount(ctx context.Context, userID uuid.UUID) (*uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, findUserLastAccessedAccount, userID)
+	var last_accessed_account *uuid.UUID
+	err := row.Scan(&last_accessed_account)
+	return last_accessed_account, err
+}
+
 const getUserByAuthID = `-- name: GetUserByAuthID :one
 SELECT user_id FROM users WHERE auth_id = $1
 `

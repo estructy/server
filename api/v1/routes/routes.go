@@ -22,20 +22,38 @@ func health(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestra
 func users(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {
 	usersHandler := usershandler.NewUsersHandler(repository)
 
-	router.HandleFunc("POST /users", middlewares.Chain(usersHandler.CreateUser, middlewares.Logger))
+	router.HandleFunc("GET /user/account/last-accessed", middlewares.Chain(
+		usersHandler.FindUserLastAccessedAccount,
+		middlewares.Logger,
+		middlewares.Auth,
+	))
 }
 
 func accounts(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, db *pgxpool.Pool, repository *repository.Queries) {
 	accountsHandler := accountshandler.NewAccountsHandler(db, repository)
 
-	router.HandleFunc("POST /accounts", middlewares.Chain(accountsHandler.CreateAccount, middlewares.Logger, middlewares.Auth))
+	router.HandleFunc("POST /accounts", middlewares.Chain(
+		accountsHandler.CreateAccount,
+		middlewares.Logger,
+		middlewares.Auth,
+	))
 }
 
 func categories(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, db *pgxpool.Pool, repository *repository.Queries) {
 	categoriesHandler := categorieshandler.NewCategoriesHandler(db, repository)
 
-	router.HandleFunc("POST /categories", middlewares.Chain(categoriesHandler.CreateCategory, middlewares.Logger, middlewares.Account))
-	router.HandleFunc("GET /categories", middlewares.Chain(categoriesHandler.ListCategories, middlewares.Logger, middlewares.Account))
+	router.HandleFunc("POST /categories", middlewares.Chain(
+		categoriesHandler.CreateCategory,
+		middlewares.Logger,
+		middlewares.Auth,
+		middlewares.Account,
+	))
+	router.HandleFunc("GET /categories", middlewares.Chain(
+		categoriesHandler.ListCategories,
+		middlewares.Logger,
+		middlewares.Auth,
+		middlewares.Account,
+	))
 }
 
 func transactions(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator, repository *repository.Queries) {
