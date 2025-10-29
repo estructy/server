@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	listcategoriesrequest "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/list_categories/request"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	listcategoriesrequest "github.com/estructy/server/internal/domain/categories/use_cases/list_categories/request"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 var ErrFailedToListCategories = fmt.Errorf("failed to list categories")

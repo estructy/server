@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	createcategoryrequest "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category/request"
-	"github.com/nahtann/controlriver.com/internal/helpers"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	createcategoryrequest "github.com/estructy/server/internal/domain/categories/use_cases/create_category/request"
+	"github.com/estructy/server/internal/helpers"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 var (

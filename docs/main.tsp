@@ -4,7 +4,7 @@ import "@typespec/versioning";
 using Http;
 using Versioning;
 
-@service(#{ title: "controlriver.com" })
+@service(#{ title: "server" })
 @server("http://localhost:8080/api/v1")
 @versioned(Versions)
 namespace ControlRiver;

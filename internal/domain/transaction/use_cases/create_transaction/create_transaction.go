@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	createtransactionrequest "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/create_transaction/request/create_transaction_request"
-	"github.com/nahtann/controlriver.com/internal/helpers"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	createtransactionrequest "github.com/estructy/server/internal/domain/transaction/use_cases/create_transaction/request/create_transaction_request"
+	"github.com/estructy/server/internal/helpers"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 var (

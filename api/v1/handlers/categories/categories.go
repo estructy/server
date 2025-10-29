@@ -7,14 +7,14 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	createcategory "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category"
-	createcategoryrequest "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/create_category/request"
-	listcategories "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/list_categories"
-	listcategoriesrequest "github.com/nahtann/controlriver.com/internal/domain/categories/use_cases/list_categories/request"
-	contexthelper "github.com/nahtann/controlriver.com/internal/helpers/context"
-	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
-	requesthelper "github.com/nahtann/controlriver.com/internal/helpers/request"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	createcategory "github.com/estructy/server/internal/domain/categories/use_cases/create_category"
+	createcategoryrequest "github.com/estructy/server/internal/domain/categories/use_cases/create_category/request"
+	listcategories "github.com/estructy/server/internal/domain/categories/use_cases/list_categories"
+	listcategoriesrequest "github.com/estructy/server/internal/domain/categories/use_cases/list_categories/request"
+	contexthelper "github.com/estructy/server/internal/helpers/context"
+	jsonhelper "github.com/estructy/server/internal/helpers/json"
+	requesthelper "github.com/estructy/server/internal/helpers/request"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 type CategoriesHandler struct {

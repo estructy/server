@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	createuser "github.com/nahtann/controlriver.com/internal/domain/user/use_cases/create_user"
-	createuserrequest "github.com/nahtann/controlriver.com/internal/domain/user/use_cases/create_user/request"
-	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
-	requesthelper "github.com/nahtann/controlriver.com/internal/helpers/request"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	createuser "github.com/estructy/server/internal/domain/user/use_cases/create_user"
+	createuserrequest "github.com/estructy/server/internal/domain/user/use_cases/create_user/request"
+	jsonhelper "github.com/estructy/server/internal/helpers/json"
+	requesthelper "github.com/estructy/server/internal/helpers/request"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 type UsersHandler struct {

@@ -6,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	userrepository "github.com/nahtann/controlriver.com/internal/domain/user/repository"
-	createuserrequest "github.com/nahtann/controlriver.com/internal/domain/user/use_cases/create_user/request"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	userrepository "github.com/estructy/server/internal/domain/user/repository"
+	createuserrequest "github.com/estructy/server/internal/domain/user/use_cases/create_user/request"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 var (

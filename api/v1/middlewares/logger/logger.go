@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	response_helper "github.com/nahtann/controlriver.com/internal/helpers/response"
+	response_helper "github.com/estructy/server/internal/helpers/response"
 	"go.uber.org/zap"
 )
 

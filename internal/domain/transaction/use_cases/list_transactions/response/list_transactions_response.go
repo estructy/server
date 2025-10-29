@@ -2,7 +2,7 @@
 package listtransactionsresponse
 
 import (
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 type User struct {

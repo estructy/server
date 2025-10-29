@@ -11,7 +11,7 @@ Under the `api/{version}/middlewares` directory, you should:
 
 1. **Create a new directory** for your middleware. 
 ```bash
-controlriver.com/
+server/
 ├── api/                  
 │   └── v1/
 │     ├── handlers/ 
@@ -63,7 +63,7 @@ package middleswares
 import (
 	"net/http"
 
-	logger_middleware "github.com/nahtann/controlriver.com/api/v1/middlewares/logger"
+	logger_middleware "github.com/estructy/server/api/v1/middlewares/logger"
 	"go.uber.org/zap"
 )
 

@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	accountshandler "github.com/nahtann/controlriver.com/api/v1/handlers/accounts"
-	categorieshandler "github.com/nahtann/controlriver.com/api/v1/handlers/categories"
-	healthhandler "github.com/nahtann/controlriver.com/api/v1/handlers/health"
-	reportshandler "github.com/nahtann/controlriver.com/api/v1/handlers/reports"
-	transactionshandler "github.com/nahtann/controlriver.com/api/v1/handlers/transactions"
-	usershandler "github.com/nahtann/controlriver.com/api/v1/handlers/users"
-	middleswares "github.com/nahtann/controlriver.com/api/v1/middlewares"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	accountshandler "github.com/estructy/server/api/v1/handlers/accounts"
+	categorieshandler "github.com/estructy/server/api/v1/handlers/categories"
+	healthhandler "github.com/estructy/server/api/v1/handlers/health"
+	reportshandler "github.com/estructy/server/api/v1/handlers/reports"
+	transactionshandler "github.com/estructy/server/api/v1/handlers/transactions"
+	usershandler "github.com/estructy/server/api/v1/handlers/users"
+	middleswares "github.com/estructy/server/api/v1/middlewares"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 func health(router *http.ServeMux, middlewares *middleswares.MiddlewareOrchestrator) {

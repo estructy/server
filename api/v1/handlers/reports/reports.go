@@ -4,12 +4,12 @@ package reportshandler
 import (
 	"net/http"
 
-	reportbycategory "github.com/nahtann/controlriver.com/internal/domain/reports/use_cases/by_category"
-	bycategoryrequest "github.com/nahtann/controlriver.com/internal/domain/reports/use_cases/by_category/request"
-	contexthelper "github.com/nahtann/controlriver.com/internal/helpers/context"
-	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
-	requesthelper "github.com/nahtann/controlriver.com/internal/helpers/request"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	reportbycategory "github.com/estructy/server/internal/domain/reports/use_cases/by_category"
+	bycategoryrequest "github.com/estructy/server/internal/domain/reports/use_cases/by_category/request"
+	contexthelper "github.com/estructy/server/internal/helpers/context"
+	jsonhelper "github.com/estructy/server/internal/helpers/json"
+	requesthelper "github.com/estructy/server/internal/helpers/request"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 type ReportsHandler struct {

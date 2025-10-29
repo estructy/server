@@ -8,14 +8,14 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	createtransaction "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/create_transaction"
-	createtransactionrequest "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/create_transaction/request/create_transaction_request"
-	listtransactions "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/list_transactions"
-	listtransactionsrequest "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/list_transactions/request"
-	contexthelper "github.com/nahtann/controlriver.com/internal/helpers/context"
-	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
-	requesthelper "github.com/nahtann/controlriver.com/internal/helpers/request"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	createtransaction "github.com/estructy/server/internal/domain/transaction/use_cases/create_transaction"
+	createtransactionrequest "github.com/estructy/server/internal/domain/transaction/use_cases/create_transaction/request/create_transaction_request"
+	listtransactions "github.com/estructy/server/internal/domain/transaction/use_cases/list_transactions"
+	listtransactionsrequest "github.com/estructy/server/internal/domain/transaction/use_cases/list_transactions/request"
+	contexthelper "github.com/estructy/server/internal/helpers/context"
+	jsonhelper "github.com/estructy/server/internal/helpers/json"
+	requesthelper "github.com/estructy/server/internal/helpers/request"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 type TransactionsHandler struct {

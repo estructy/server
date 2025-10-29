@@ -1,4 +1,4 @@
-module github.com/nahtann/controlriver.com
+module github.com/estructy/server
 
 go 1.23.6
 

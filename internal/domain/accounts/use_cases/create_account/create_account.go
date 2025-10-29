@@ -7,11 +7,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	accountrepository "github.com/nahtann/controlriver.com/internal/domain/accounts/repository"
-	createaccountrequest "github.com/nahtann/controlriver.com/internal/domain/accounts/use_cases/create_account/request"
-	createaccountresponse "github.com/nahtann/controlriver.com/internal/domain/accounts/use_cases/create_account/response"
-	accountroles "github.com/nahtann/controlriver.com/internal/helpers/accounts/roles"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	accountrepository "github.com/estructy/server/internal/domain/accounts/repository"
+	createaccountrequest "github.com/estructy/server/internal/domain/accounts/use_cases/create_account/request"
+	createaccountresponse "github.com/estructy/server/internal/domain/accounts/use_cases/create_account/response"
+	accountroles "github.com/estructy/server/internal/helpers/accounts/roles"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 var (

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
-	currencycodes "github.com/nahtann/controlriver.com/internal/helpers/currency/codes"
+	currencycodes "github.com/estructy/server/internal/helpers/currency/codes"
 )
 
 type CreateAccountRequest struct {

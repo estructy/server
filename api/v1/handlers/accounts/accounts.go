@@ -6,11 +6,11 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	createaccount "github.com/nahtann/controlriver.com/internal/domain/accounts/use_cases/create_account"
-	createaccountrequest "github.com/nahtann/controlriver.com/internal/domain/accounts/use_cases/create_account/request"
-	contexthelper "github.com/nahtann/controlriver.com/internal/helpers/context"
-	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	createaccount "github.com/estructy/server/internal/domain/accounts/use_cases/create_account"
+	createaccountrequest "github.com/estructy/server/internal/domain/accounts/use_cases/create_account/request"
+	contexthelper "github.com/estructy/server/internal/helpers/context"
+	jsonhelper "github.com/estructy/server/internal/helpers/json"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 type AccountsHandler struct {

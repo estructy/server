@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	bycategoryrequest "github.com/nahtann/controlriver.com/internal/domain/reports/use_cases/by_category/request"
-	bycategoryresponse "github.com/nahtann/controlriver.com/internal/domain/reports/use_cases/by_category/response"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	bycategoryrequest "github.com/estructy/server/internal/domain/reports/use_cases/by_category/request"
+	bycategoryresponse "github.com/estructy/server/internal/domain/reports/use_cases/by_category/response"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 var (

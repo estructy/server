@@ -4,9 +4,9 @@ package middleswares
 import (
 	"net/http"
 
-	accountmiddleware "github.com/nahtann/controlriver.com/api/v1/middlewares/account"
-	authmiddleware "github.com/nahtann/controlriver.com/api/v1/middlewares/auth"
-	logger_middleware "github.com/nahtann/controlriver.com/api/v1/middlewares/logger"
+	accountmiddleware "github.com/estructy/server/api/v1/middlewares/account"
+	authmiddleware "github.com/estructy/server/api/v1/middlewares/auth"
+	logger_middleware "github.com/estructy/server/api/v1/middlewares/logger"
 	"go.uber.org/zap"
 )
 

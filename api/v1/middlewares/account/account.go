@@ -4,7 +4,7 @@ package accountmiddleware
 import (
 	"net/http"
 
-	contexthelper "github.com/nahtann/controlriver.com/internal/helpers/context"
+	contexthelper "github.com/estructy/server/internal/helpers/context"
 )
 
 type AccountMiddleware struct{}

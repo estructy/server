@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	listtransactionsrequest "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/list_transactions/request"
-	listtransactionsresponse "github.com/nahtann/controlriver.com/internal/domain/transaction/use_cases/list_transactions/response"
-	"github.com/nahtann/controlriver.com/internal/infra/database/repository"
+	listtransactionsrequest "github.com/estructy/server/internal/domain/transaction/use_cases/list_transactions/request"
+	listtransactionsresponse "github.com/estructy/server/internal/domain/transaction/use_cases/list_transactions/response"
+	"github.com/estructy/server/internal/infra/database/repository"
 )
 
 var (

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	jsonhelper "github.com/nahtann/controlriver.com/internal/helpers/json"
+	jsonhelper "github.com/estructy/server/internal/helpers/json"
 )
 
 func GetHealth(w http.ResponseWriter, r *http.Request) {
