@@ -8,6 +8,7 @@ import (
 	contexthelper "github.com/estructy/server/internal/helpers/context"
 	"github.com/estructy/server/internal/infra/database/repository"
 	"github.com/google/uuid"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 	"github.com/lestrrat-go/jwx/v3/jwt"
 )
 
@@ -23,7 +24,13 @@ func NewAuthMiddleware(repo *repository.Queries) *AuthMiddleware {
 
 func (m *AuthMiddleware) Handle(next http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token, err := jwt.ParseRequest(r, jwt.WithVerify(false))
+		jwkSet, err := jwk.Fetch(r.Context(), "http://localhost:4000/api/auth/jwks")
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		token, err := jwt.ParseRequest(r, jwt.WithKeySet(jwkSet))
 		if err != nil || token == nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
