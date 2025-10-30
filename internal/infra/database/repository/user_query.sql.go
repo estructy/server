@@ -56,6 +56,34 @@ func (q *Queries) GetUserByAuthID(ctx context.Context, authID string) (uuid.UUID
 	return user_id, err
 }
 
+const updateUserLastAccessedAccount = `-- name: UpdateUserLastAccessedAccount :exec
+UPDATE users SET last_accessed_account = $2 WHERE user_id = $1
+`
+
+type UpdateUserLastAccessedAccountParams struct {
+	UserID              uuid.UUID  `json:"user_id"`
+	LastAccessedAccount *uuid.UUID `json:"last_accessed_account"`
+}
+
+func (q *Queries) UpdateUserLastAccessedAccount(ctx context.Context, arg UpdateUserLastAccessedAccountParams) error {
+	_, err := q.db.Exec(ctx, updateUserLastAccessedAccount, arg.UserID, arg.LastAccessedAccount)
+	return err
+}
+
+const updateUserName = `-- name: UpdateUserName :exec
+UPDATE users SET name = $2 WHERE user_id = $1
+`
+
+type UpdateUserNameParams struct {
+	UserID uuid.UUID `json:"user_id"`
+	Name   string    `json:"name"`
+}
+
+func (q *Queries) UpdateUserName(ctx context.Context, arg UpdateUserNameParams) error {
+	_, err := q.db.Exec(ctx, updateUserName, arg.UserID, arg.Name)
+	return err
+}
+
 const userExistsByEmail = `-- name: UserExistsByEmail :one
 SELECT EXISTS (
 		SELECT 1 FROM users WHERE email = $1

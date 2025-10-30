@@ -4,12 +4,13 @@ package createaccountrequest
 import (
 	"fmt"
 
-	"github.com/go-playground/validator/v10"
 	currencycodes "github.com/estructy/server/internal/helpers/currency/codes"
+	"github.com/go-playground/validator/v10"
 )
 
 type CreateAccountRequest struct {
-	Name         string `json:"name" validate:"required,max=100"`
+	AccountName  string `json:"account_name" validate:"required,max=100"`
+	UserName     string `json:"user_name" validate:"max=100"`
 	Description  string `json:"description" validate:"max=500"`
 	CurrencyCode string `json:"currency_code" validate:"required,len=3,uppercase"`
 }

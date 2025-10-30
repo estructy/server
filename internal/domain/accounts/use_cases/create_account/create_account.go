@@ -5,13 +5,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
-	accountrepository "github.com/estructy/server/internal/domain/accounts/repository"
 	createaccountrequest "github.com/estructy/server/internal/domain/accounts/use_cases/create_account/request"
 	createaccountresponse "github.com/estructy/server/internal/domain/accounts/use_cases/create_account/response"
 	accountroles "github.com/estructy/server/internal/helpers/accounts/roles"
 	"github.com/estructy/server/internal/infra/database/repository"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var (
@@ -43,14 +42,14 @@ var (
 )
 
 type CreateAccountUseCase struct {
-	DB                *pgxpool.Pool
-	AccountRepository accountrepository.AccountRepository
+	DB   *pgxpool.Pool
+	repo *repository.Queries
 }
 
-func NewCreateAccountUseCase(db *pgxpool.Pool, accountRepository accountrepository.AccountRepository) *CreateAccountUseCase {
+func NewCreateAccountUseCase(db *pgxpool.Pool, repo *repository.Queries) *CreateAccountUseCase {
 	return &CreateAccountUseCase{
-		DB:                db,
-		AccountRepository: accountRepository,
+		DB:   db,
+		repo: repo,
 	}
 }
 
@@ -68,16 +67,32 @@ func (uc *CreateAccountUseCase) Execute(userID uuid.UUID, request createaccountr
 	}
 	defer tx.Rollback(ctx)
 
-	qtx := uc.AccountRepository.WithTx(tx)
+	qtx := uc.repo.WithTx(tx)
 
 	if err := qtx.CreateAccount(ctx, repository.CreateAccountParams{
 		AccountID:       accountID,
 		CreatedByUserID: userID,
-		Name:            request.Name,
+		Name:            request.AccountName,
 		Description:     &request.Description,
 		CurrencyCode:    &request.CurrencyCode,
 	}); err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrFailedToCreateAccount, err.Error())
+	}
+
+	if err := qtx.UpdateUserLastAccessedAccount(ctx, repository.UpdateUserLastAccessedAccountParams{
+		UserID:              userID,
+		LastAccessedAccount: &accountID,
+	}); err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrFailedToCreateAccount, err.Error())
+	}
+
+	if request.UserName != "" {
+		if err := qtx.UpdateUserName(ctx, repository.UpdateUserNameParams{
+			UserID: userID,
+			Name:   request.UserName,
+		}); err != nil {
+			return nil, fmt.Errorf("%w: %s", ErrFailedToCreateAccount, err.Error())
+		}
 	}
 
 	if err := qtx.AddAccountMember(ctx, repository.AddAccountMemberParams{
