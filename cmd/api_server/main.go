@@ -8,6 +8,7 @@ import (
 
 	middleswares "github.com/estructy/server/api/v1/middlewares"
 	routesv1 "github.com/estructy/server/api/v1/routes"
+	dbseeds "github.com/estructy/server/internal/helpers/database/seeds"
 	"github.com/estructy/server/internal/helpers/migrations"
 	"github.com/estructy/server/internal/infra/database/repository"
 	"github.com/jackc/pgx/v5"
@@ -50,6 +51,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to parse DATABASE_URL: %v\n", err)
 	}
+
 	// config.ConnConfig.Tracer = &myQueryTracer{
 	// 	log: logger.WithOptions(zap.AddCallerSkip(1)),
 	// }
@@ -59,6 +61,7 @@ func main() {
 	}
 	defer dbpool.Close()
 	repository := repository.New(dbpool)
+	dbseeds.CategoriesUp(dbpool)
 	// ------
 
 	// --- Router setup ---
